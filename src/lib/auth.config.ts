@@ -14,7 +14,7 @@ export function isProtectedPath(pathname: string): boolean {
  * Used by middleware; extended with providers + adapter in `src/lib/auth.ts`.
  */
 export const authConfig = {
-  pages: { signIn: "/login" },
+  pages: { signIn: "/login", error: "/login" },
   session: { strategy: "jwt" },
   providers: [],
   callbacks: {

@@ -1,14 +1,19 @@
-import NextAuth from "next-auth";
+import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 
 import { authConfig } from "@/lib/auth.config";
+import { RATE_LIMITED_CODE } from "@/lib/auth-errors";
 import { db } from "@/lib/db";
 import { verifyPassword } from "@/lib/password";
 import { getClientIp, loginLimiter } from "@/lib/rate-limit";
 import { loginSchema } from "@/lib/validators/auth";
 import { generateUsername } from "@/lib/username";
+
+class RateLimitedError extends CredentialsSignin {
+  code = RATE_LIMITED_CODE;
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -25,7 +30,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!parsed.success) return null;
 
         const { success } = await loginLimiter.limit(`login:${getClientIp(request.headers)}`);
-        if (!success) return null;
+        if (!success) throw new RateLimitedError();
 
         const { identifier, password } = parsed.data;
         const user = await db.user.findFirst({
@@ -46,6 +51,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
+  logger: {
+    // Wrong passwords are expected; don't log them as server errors.
+    error(error) {
+      if (error instanceof CredentialsSignin) return;
+      console.error(error);
+    },
+  },
   events: {
     // OAuth users are created by the adapter without a username: assign a unique one.
     async createUser({ user }) {
