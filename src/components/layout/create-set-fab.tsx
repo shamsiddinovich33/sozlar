@@ -1,7 +1,15 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Plus } from "lucide-react";
 
+const FAB_PATHS = ["/dashboard", "/library"];
+
+/** Floating "create set" button, shown on the dashboard and library only. */
 export function CreateSetFab() {
+  const pathname = usePathname();
+  if (!FAB_PATHS.includes(pathname)) return null;
   return (
     <Link
       href="/sets/new"
