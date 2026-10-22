@@ -3,9 +3,16 @@ import { db } from "@/lib/db";
 export type TakenField = "email" | "username";
 
 /** Returns which of the given unique fields already belong to another user. */
-export async function findTakenFields(email: string, username: string): Promise<TakenField[]> {
+export async function findTakenFields(
+  email: string,
+  username: string,
+  excludeUserId?: string,
+): Promise<TakenField[]> {
   const existing = await db.user.findMany({
-    where: { OR: [{ email }, { username }] },
+    where: {
+      OR: [{ email }, { username }],
+      ...(excludeUserId && { id: { not: excludeUserId } }),
+    },
     select: { email: true, username: true },
   });
   const taken: TakenField[] = [];

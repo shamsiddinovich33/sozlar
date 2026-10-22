@@ -123,10 +123,10 @@ export async function startStudySession(
 export async function finishStudySession(input: unknown): Promise<ActionResult<null>> {
   return runAction(async () => {
     const userId = await requireUserId();
-    const { sessionId, correct, wrong } = finishSessionSchema.parse(input);
+    const { sessionId } = finishSessionSchema.parse(input);
     const { count } = await db.studySession.updateMany({
       where: { id: sessionId, userId },
-      data: { correct, wrong, endedAt: new Date() },
+      data: { endedAt: new Date() },
     });
     if (count === 0) throw new ActionError(ACTION_ERRORS.notFound);
     return null;
@@ -150,7 +150,11 @@ export async function submitAnswer(input: unknown): Promise<ActionResult<CardPro
       if (sessionId) {
         await tx.studySession.updateMany({
           where: { id: sessionId, userId, setId },
-          data: correct ? { correct: { increment: 1 } } : { wrong: { increment: 1 } },
+          // endedAt doubles as "last activity", so time is tracked even if the tab is closed.
+          data: {
+            ...(correct ? { correct: { increment: 1 } } : { wrong: { increment: 1 } }),
+            endedAt: new Date(),
+          },
         });
       }
       return progress;

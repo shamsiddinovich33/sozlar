@@ -128,7 +128,7 @@ export function LearnPlayer({ setId, title, cards, saved }: LearnPlayerProps) {
     finishedRef.current = true;
     const sessionId = sessionIdRef.current;
     if (sessionId) {
-      void finishStudySession({ sessionId, correct: session.correct, wrong: session.wrong });
+      void finishStudySession({ sessionId });
     }
   }, [phase, started, session]);
 

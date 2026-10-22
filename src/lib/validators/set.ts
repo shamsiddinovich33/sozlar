@@ -90,16 +90,12 @@ export const favoriteSchema = z.object({ cardId: cardIdSchema, starred: z.boolea
 
 export const studyModeSchema = z.enum(["FLASHCARDS", "LEARN"]);
 
-export const finishSessionSchema = z.object({
-  sessionId: cardIdSchema,
-  correct: z.number().int().min(0).max(100_000),
-  wrong: z.number().int().min(0).max(100_000),
-});
+export const finishSessionSchema = z.object({ sessionId: cardIdSchema });
 
 export const submitAnswerSchema = z.object({
   setId: setIdSchema,
   cardId: cardIdSchema,
   correct: z.boolean(),
-  /** Learn session to count the answer in (optional; flashcards don't count) */
+  /** Study session to count the answer in */
   sessionId: cardIdSchema.optional(),
 });

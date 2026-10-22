@@ -25,6 +25,22 @@ function localDay(date: Date, timeZone: string): { dayStart: number; weekday: nu
   return { dayStart, weekday };
 }
 
+/** Calendar day of `date` in `timeZone` as "YYYY-MM-DD". */
+export function toDayKey(date: Date, timeZone: string = APP_TIME_ZONE): string {
+  return new Date(localDay(date, timeZone).dayStart).toISOString().slice(0, 10);
+}
+
+/** Shifts a "YYYY-MM-DD" day key by `days` (may be negative). */
+export function addDays(dayKey: string, days: number): string {
+  const t = Date.parse(`${dayKey}T00:00:00Z`) + days * DAY_MS;
+  return new Date(t).toISOString().slice(0, 10);
+}
+
+/** Weekday of a day key, 0 = Monday … 6 = Sunday. */
+export function weekdayOf(dayKey: string): number {
+  return (new Date(`${dayKey}T00:00:00Z`).getUTCDay() + 6) % 7;
+}
+
 /** Buckets a date relative to `now`: today, earlier this week (weeks start on Monday), or earlier. */
 export function getRecencyBucket(
   date: Date,
@@ -51,4 +67,46 @@ export function groupByRecency<T>(
   return (Object.keys(groups) as RecencyBucket[])
     .filter((bucket) => groups[bucket].length > 0)
     .map((bucket) => ({ bucket, label: RECENCY_LABELS[bucket], items: groups[bucket] }));
+}
+
+const UZ_MONTHS = [
+  "yanvar",
+  "fevral",
+  "mart",
+  "aprel",
+  "may",
+  "iyun",
+  "iyul",
+  "avgust",
+  "sentabr",
+  "oktabr",
+  "noyabr",
+  "dekabr",
+] as const;
+export const UZ_WEEKDAYS_SHORT = ["Du", "Se", "Ch", "Pa", "Ju", "Sh", "Ya"] as const;
+
+/** "22-oktabr" for a "YYYY-MM-DD" day key. */
+export function formatDayUz(dayKey: string): string {
+  const [, month, day] = dayKey.split("-").map(Number);
+  return `${day}-${UZ_MONTHS[(month ?? 1) - 1]}`;
+}
+
+const UZ_MONTHS_SHORT = [
+  "yan",
+  "fev",
+  "mar",
+  "apr",
+  "may",
+  "iyn",
+  "iyl",
+  "avg",
+  "sen",
+  "okt",
+  "noy",
+  "dek",
+] as const;
+
+/** Short month name ("okt") for heatmap labels; June and July stay distinct (iyn / iyl). */
+export function shortMonthUz(dayKey: string): string {
+  return UZ_MONTHS_SHORT[Number(dayKey.slice(5, 7)) - 1] ?? "";
 }

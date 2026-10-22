@@ -15,7 +15,7 @@ class RateLimitedError extends CredentialsSignin {
   code = RATE_LIMITED_CODE;
 }
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
   ...authConfig,
   adapter: PrismaAdapter(db),
   providers: [
@@ -68,10 +68,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   callbacks: {
     ...authConfig.callbacks,
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user?.id) {
         token.id = user.id;
         token.username = user.username ?? null;
+      }
+      // After a profile change (unstable_update), reload the fields shown in the UI.
+      if (trigger === "update" && token.id) {
+        const fresh = await db.user.findUnique({
+          where: { id: token.id },
+          select: { name: true, email: true, image: true, username: true },
+        });
+        if (fresh) {
+          token.name = fresh.name;
+          token.email = fresh.email;
+          token.picture = fresh.image;
+          token.username = fresh.username;
+        }
       }
       // First OAuth sign-in: username is assigned in `events.createUser` after the user object is built.
       if (token.id && !token.username) {

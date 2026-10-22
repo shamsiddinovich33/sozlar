@@ -159,19 +159,19 @@ export function FlashcardsPlayer({ setId, title, cards }: FlashcardsPlayerProps)
   const counts = countResults(deck);
   useEffect(() => {
     if (!deck.finished || !sessionIdRef.current || deck.order.length === 0) return;
-    void finishStudySession({
-      sessionId: sessionIdRef.current,
-      correct: counts.known,
-      wrong: counts.unknown,
-    });
-  }, [deck.finished, deck.order.length, counts.known, counts.unknown]);
+    void finishStudySession({ sessionId: sessionIdRef.current });
+  }, [deck.finished, deck.order.length]);
 
   // "Bilaman" / "Bilmayman" update word progress with the same rules as Learn.
   const deckRef = useRef(deck);
   deckRef.current = deck;
   const recordProgress = useMutation({
     mutationFn: async (vars: { cardId: string; correct: boolean }) => {
-      const result = await submitAnswer({ setId, ...vars });
+      const result = await submitAnswer({
+        setId,
+        ...vars,
+        sessionId: sessionIdRef.current ?? undefined,
+      });
       if (!result.ok) throw new Error(result.error);
       return result.data;
     },

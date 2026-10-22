@@ -1,16 +1,114 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
+import { redirect } from "next/navigation";
 
+import { StreakHeatmap } from "@/components/charts/streak-heatmap";
+import { WeeklyActivityChart } from "@/components/charts/weekly-activity-chart";
+import { AvatarUploader } from "@/components/profile/avatar-uploader";
+import { DeleteAccount } from "@/components/profile/delete-account";
+import { HardestWords } from "@/components/profile/hardest-words";
+import { PasswordForm } from "@/components/profile/password-form";
+import { ProfileForm } from "@/components/profile/profile-form";
+import { StatTiles } from "@/components/profile/stat-tiles";
+import { ThemeSetting } from "@/components/profile/theme-setting";
+import { getCloudinaryConfig } from "@/lib/cloudinary";
+import { getProfileAccount, getProfileStats } from "@/lib/queries/profile";
 import { requireUser } from "@/lib/session";
 
 export const metadata: Metadata = { title: "Profil" };
 
-// Placeholder; the full profile page is built in Step 7.
-export default async function ProfilePage() {
-  const user = await requireUser();
+function SettingsSection({
+  id,
+  title,
+  description,
+  children,
+}: {
+  id: string;
+  title: string;
+  description?: string;
+  children: ReactNode;
+}) {
   return (
-    <div className="grid gap-2">
-      <h1 className="text-2xl font-bold sm:text-3xl">{user.name ?? user.username}</h1>
-      {user.username && <p className="text-muted-foreground">@{user.username}</p>}
+    <section aria-labelledby={id} className="grid gap-4 rounded-xl bg-card p-5 shadow-sm sm:p-6">
+      <div className="grid gap-1">
+        <h3 id={id} className="font-bold">
+          {title}
+        </h3>
+        {description && <p className="text-sm text-muted-foreground">{description}</p>}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+export default async function ProfilePage() {
+  const { id } = await requireUser();
+  const [account, stats] = await Promise.all([getProfileAccount(id), getProfileStats(id)]);
+  if (!account) redirect("/login");
+
+  return (
+    <div className="grid grid-cols-1 gap-8">
+      <header className="flex flex-wrap items-center gap-4">
+        <AvatarUploader
+          name={account.name ?? account.username}
+          image={account.image}
+          uploadEnabled={getCloudinaryConfig() !== null}
+        />
+        <div className="grid min-w-0 gap-0.5">
+          <h1 className="truncate text-2xl font-bold sm:text-3xl">
+            {account.name ?? account.username}
+          </h1>
+          {account.username && <p className="text-muted-foreground">@{account.username}</p>}
+        </div>
+      </header>
+
+      <section aria-label="Statistika" className="grid gap-4">
+        <StatTiles stats={stats} />
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <div className="min-w-0 rounded-xl bg-card p-5 shadow-sm">
+            <WeeklyActivityChart data={stats.weekly} />
+          </div>
+          <div className="min-w-0 rounded-xl bg-card p-5 shadow-sm">
+            <StreakHeatmap
+              weeks={stats.heatmap}
+              streak={stats.streak}
+              activeDays={stats.activeDays}
+            />
+          </div>
+        </div>
+      </section>
+
+      <HardestWords words={stats.hardest} />
+
+      <section aria-labelledby="settings-title" className="grid gap-4">
+        <h2 id="settings-title" className="text-lg font-bold">
+          Sozlamalar
+        </h2>
+        <SettingsSection id="settings-profile" title="Profil ma'lumotlari">
+          <ProfileForm
+            defaults={{
+              name: account.name ?? "",
+              username: account.username ?? "",
+              email: account.email,
+            }}
+          />
+        </SettingsSection>
+        <SettingsSection id="settings-password" title="Parol">
+          <PasswordForm hasPassword={account.hasPassword} />
+        </SettingsSection>
+        <SettingsSection id="settings-theme" title="Mavzu">
+          <ThemeSetting />
+        </SettingsSection>
+        <SettingsSection
+          id="settings-danger"
+          title="Hisobni o'chirish"
+          description="Hisobingiz va undagi barcha ma'lumotlar butunlay o'chiriladi."
+        >
+          <div>
+            <DeleteAccount username={account.username ?? ""} hasPassword={account.hasPassword} />
+          </div>
+        </SettingsSection>
+      </section>
     </div>
   );
 }

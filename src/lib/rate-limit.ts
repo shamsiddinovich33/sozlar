@@ -74,3 +74,6 @@ export function getClientIp(headers: Headers): string {
 
 /** 10 set-password attempts per 10 minutes per user and set. */
 export const setUnlockLimiter = createLimiter(10, 600, "set-unlock");
+
+/** 5 password changes / account deletions per 10 minutes per user. */
+export const accountLimiter = createLimiter(5, 600, "account");

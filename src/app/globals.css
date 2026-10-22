@@ -40,6 +40,12 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
+  --color-heat-0: var(--heat-0);
+  --color-heat-1: var(--heat-1);
+  --color-heat-2: var(--heat-2);
+  --color-heat-3: var(--heat-3);
+  --color-heat-4: var(--heat-4);
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -68,6 +74,12 @@
   --border: #d9dde8;
   --input: #d9dde8;
   --ring: #4255ff;
+  /* Activity heatmap: one hue, light → dark for more activity */
+  --heat-0: #e3e7ee;
+  --heat-1: #c7cdff;
+  --heat-2: #8e99ff;
+  --heat-3: #4255ff;
+  --heat-4: #2533b8;
 }
 
 /* Dark theme (default) */
@@ -90,6 +102,12 @@
   --border: #3a4466;
   --input: #3a4466;
   --ring: #4255ff;
+  /* On the dark surface more activity is brighter */
+  --heat-0: #1d2547;
+  --heat-1: #28368f;
+  --heat-2: #3646cc;
+  --heat-3: #5f6dff;
+  --heat-4: #a9b0ff;
 }
 
 @layer base {
