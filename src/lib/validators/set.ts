@@ -81,3 +81,17 @@ export const visibilitySchema = z.discriminatedUnion("visibility", [
 ]);
 
 export type VisibilityInput = z.infer<typeof visibilitySchema>;
+
+export const unlockSetSchema = z.object({
+  password: z.string().min(1, "Parolni kiriting").max(LIMITS.setPasswordMax),
+});
+
+export const favoriteSchema = z.object({ cardId: cardIdSchema, starred: z.boolean() });
+
+export const studyModeSchema = z.enum(["FLASHCARDS", "LEARN"]);
+
+export const finishSessionSchema = z.object({
+  sessionId: cardIdSchema,
+  correct: z.number().int().min(0).max(100_000),
+  wrong: z.number().int().min(0).max(100_000),
+});

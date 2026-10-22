@@ -71,3 +71,6 @@ export function getClientIp(headers: Headers): string {
   const forwarded = headers.get("x-forwarded-for");
   return forwarded?.split(",")[0]?.trim() || headers.get("x-real-ip") || "unknown";
 }
+
+/** 10 set-password attempts per 10 minutes per user and set. */
+export const setUnlockLimiter = createLimiter(10, 600, "set-unlock");
