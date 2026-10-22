@@ -19,7 +19,7 @@ sonner · next-themes · Vitest · pnpm.
 
 ## Getting started
 
-Requirements: **Node.js 20+**, **pnpm 10+** and a **PostgreSQL** database (local, Neon or Supabase).
+Requirements: **Node.js 20+**, **pnpm 10.28+** (pnpm 11 and 12 work too) and a **PostgreSQL** database (local, Neon or Supabase).
 
 ```bash
 # 1. Install dependencies (also generates the Prisma client)
