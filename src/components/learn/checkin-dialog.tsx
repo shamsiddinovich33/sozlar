@@ -37,7 +37,7 @@ export function CheckinDialog({
         <dl className="grid gap-3">
           <div className="flex items-center justify-between rounded-lg bg-secondary px-4 py-3">
             <dt className="text-muted-foreground">Umumiy progress</dt>
-            <dd className="text-lg font-bold text-success">{percent}%</dd>
+            <dd className="text-lg font-bold text-success-text">{percent}%</dd>
           </div>
           <div className="flex items-center justify-between rounded-lg bg-secondary px-4 py-3">
             <dt className="text-muted-foreground">Bajarilgan savollar</dt>

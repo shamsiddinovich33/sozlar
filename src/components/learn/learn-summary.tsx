@@ -5,7 +5,7 @@ import { Clock, Target, Trophy } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-export function formatDuration(ms: number): string {
+function formatDuration(ms: number): string {
   const totalSeconds = Math.max(0, Math.round(ms / 1000));
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
@@ -42,9 +42,9 @@ export function LearnSummary({
         <span className="grid size-16 place-items-center rounded-full bg-accent-yellow/20 text-accent-yellow">
           <Trophy className="size-8" aria-hidden />
         </span>
-        <h1 id="learn-done" className="text-2xl font-bold sm:text-3xl">
+        <h2 id="learn-done" className="text-2xl font-bold sm:text-3xl">
           Tabriklaymiz! Siz bu bosqichni yakunladingiz
-        </h1>
+        </h2>
         <p className="text-muted-foreground">{title}</p>
       </div>
 
@@ -54,7 +54,7 @@ export function LearnSummary({
             <Target className="size-4" aria-hidden />
             Aniqlik
           </dt>
-          <dd className="text-2xl font-bold text-success">
+          <dd className="text-2xl font-bold text-success-text">
             {accuracy === null ? "—" : `${accuracy}%`}
           </dd>
         </div>
@@ -78,7 +78,7 @@ export function LearnSummary({
               >
                 <span className="font-semibold break-words">{w.term}</span>
                 <span className="break-words text-muted-foreground">{w.definition}</span>
-                <span className="text-sm whitespace-nowrap text-error">
+                <span className="text-sm whitespace-nowrap text-error-text">
                   {w.wrong > 0 ? `${w.wrong} ta xato` : ""}
                 </span>
               </li>

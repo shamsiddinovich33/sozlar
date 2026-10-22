@@ -5,7 +5,7 @@ import type { CardProgress, Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { applyAnswer, initialProgress, type CardProgressState } from "@/lib/learning";
 
-export function toProgressState(row: CardProgress): CardProgressState {
+function toProgressState(row: CardProgress): CardProgressState {
   return {
     cardId: row.cardId,
     correctCount: row.correctCount,

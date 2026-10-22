@@ -18,13 +18,13 @@ export function SaveIndicator({
         </span>
       )}
       {status === "saved" && (
-        <span className="flex items-center gap-1.5 text-success">
+        <span className="flex items-center gap-1.5 text-success-text">
           <Check className="size-4" aria-hidden />
           Saqlandi
         </span>
       )}
       {status === "error" && (
-        <span className="flex items-center gap-1.5 text-error">
+        <span className="flex items-center gap-1.5 text-error-text">
           <AlertCircle className="size-4" aria-hidden />
           Saqlanmadi.
           <button

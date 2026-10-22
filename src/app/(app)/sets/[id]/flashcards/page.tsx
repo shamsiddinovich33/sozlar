@@ -39,15 +39,18 @@ export default async function FlashcardsPage({ params }: PageProps) {
   }
 
   return (
-    <FlashcardsPlayer
-      setId={set.id}
-      title={set.title}
-      cards={set.cards.map(({ id, term, definition, starred }) => ({
-        id,
-        term,
-        definition,
-        starred,
-      }))}
-    />
+    <>
+      <h1 className="sr-only">Flashcards: {set.title}</h1>
+      <FlashcardsPlayer
+        setId={set.id}
+        title={set.title}
+        cards={set.cards.map(({ id, term, definition, starred }) => ({
+          id,
+          term,
+          definition,
+          starred,
+        }))}
+      />
+    </>
   );
 }

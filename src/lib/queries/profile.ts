@@ -16,7 +16,7 @@ import {
   type WordStat,
 } from "@/lib/stats";
 
-export const HEATMAP_WEEKS = 26;
+const HEATMAP_WEEKS = 26;
 /** Longest a single study session counts toward study time (idle tabs don't inflate it). */
 const SESSION_CAP_SECONDS = 3 * 60 * 60;
 

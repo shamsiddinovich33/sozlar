@@ -34,7 +34,9 @@ export function HardestWords({ words }: { words: ProfileStats["hardest"] }) {
                 </Link>
               </span>
               <span className="text-right text-sm whitespace-nowrap">
-                <span className="font-semibold text-error">{Math.round(w.errorRate * 100)}%</span>
+                <span className="font-semibold text-error-text">
+                  {Math.round(w.errorRate * 100)}%
+                </span>
                 <span className="block text-xs text-muted-foreground">{w.wrongCount} ta xato</span>
               </span>
             </li>

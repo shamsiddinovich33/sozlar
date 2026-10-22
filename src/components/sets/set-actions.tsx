@@ -44,7 +44,7 @@ export function SetActions({ setId, title, isOwner, visibility }: SetActionsProp
         <Share2 aria-hidden />
         Ulashish
       </Button>
-      <DropdownMenu>
+      <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="icon" aria-label="Boshqa amallar">
             <Ellipsis />

@@ -6,7 +6,6 @@ export function Logo({ className, href = "/" }: { className?: string; href?: str
   return (
     <Link
       href={href}
-      aria-label="So'zlik — bosh sahifa"
       className={cn("inline-flex items-center gap-2 rounded-lg text-xl font-extrabold", className)}
     >
       <span
@@ -15,7 +14,9 @@ export function Logo({ className, href = "/" }: { className?: string; href?: str
       >
         S
       </span>
-      <span>So&apos;zlik</span>
+      <span>
+        So&apos;zlik<span className="sr-only"> — bosh sahifa</span>
+      </span>
     </Link>
   );
 }

@@ -9,7 +9,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         <Logo />
       </header>
       <main className="flex flex-1 items-start justify-center px-4 pt-4 pb-16 sm:items-center sm:pt-0">
-        <div className="w-full max-w-md rounded-2xl bg-card p-6 shadow-lg sm:p-8">{children}</div>
+        <div className="w-full max-w-md rounded-2xl bg-card p-5 shadow-lg sm:p-8">{children}</div>
       </main>
     </div>
   );

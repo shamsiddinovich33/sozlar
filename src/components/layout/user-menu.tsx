@@ -5,7 +5,7 @@ import { useTheme } from "next-themes";
 import { LogOut, Moon, Sun, UserRound } from "lucide-react";
 
 import { signOutAction } from "@/app/(app)/actions";
-import { UserAvatar } from "@/components/layout/user-avatar";
+import { UserAvatar, getInitials } from "@/components/layout/user-avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,9 +26,9 @@ export function UserMenu({ name, username, image }: UserMenuProps) {
   const isDark = resolvedTheme !== "light";
 
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger
-        aria-label="Foydalanuvchi menyusi"
+        aria-label={`${getInitials(name ?? username)} — foydalanuvchi menyusi`}
         className="cursor-pointer rounded-full focus-visible:ring-[3px] focus-visible:ring-ring/60 focus-visible:outline-none"
       >
         <UserAvatar name={name} image={image} />

@@ -1,10 +1,9 @@
 import { createHash } from "node:crypto";
 
-export const AVATAR_FOLDER = "sozlik/avatars";
-export const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
-export const AVATAR_FORMATS = ["jpg", "jpeg", "png", "webp"] as const;
+const AVATAR_FOLDER = "sozlik/avatars";
+const AVATAR_FORMATS = ["jpg", "jpeg", "png", "webp"] as const;
 /** Applied by Cloudinary on upload, so only a small square image is stored. */
-export const AVATAR_TRANSFORMATION = "c_fill,g_face,w_256,h_256";
+const AVATAR_TRANSFORMATION = "c_fill,g_face,w_256,h_256";
 
 export type CloudinaryConfig = { cloudName: string; apiKey: string; apiSecret: string };
 

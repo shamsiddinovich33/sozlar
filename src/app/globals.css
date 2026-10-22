@@ -40,6 +40,11 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
+  /* Text-safe variants of the brand colors (≥ 4.5:1 on every surface and tint) */
+  --color-success-text: var(--success-text);
+  --color-error-text: var(--error-text);
+  --color-brand-text: var(--brand-text);
+
   --color-heat-0: var(--heat-0);
   --color-heat-1: var(--heat-1);
   --color-heat-2: var(--heat-2);
@@ -74,6 +79,9 @@
   --border: #d9dde8;
   --input: #d9dde8;
   --ring: #4255ff;
+  --success-text: #0e6a3b;
+  --error-text: #9e3a06;
+  --brand-text: #3346e6;
   /* Activity heatmap: one hue, light → dark for more activity */
   --heat-0: #e3e7ee;
   --heat-1: #c7cdff;
@@ -102,6 +110,9 @@
   --border: #3a4466;
   --input: #3a4466;
   --ring: #4255ff;
+  --success-text: #5ee49b;
+  --error-text: #ffbe96;
+  --brand-text: #bcc2ff;
   /* On the dark surface more activity is brighter */
   --heat-0: #1d2547;
   --heat-1: #28368f;

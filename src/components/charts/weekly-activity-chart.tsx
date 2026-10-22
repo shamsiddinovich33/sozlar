@@ -30,7 +30,11 @@ export function WeeklyActivityChart({ data }: { data: Point[] }) {
       </figcaption>
       <div aria-hidden className="h-52 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={rows} margin={{ top: 8, right: 4, bottom: 0, left: -12 }}>
+          <BarChart
+            accessibilityLayer={false}
+            data={rows}
+            margin={{ top: 8, right: 4, bottom: 0, left: -12 }}
+          >
             <CartesianGrid vertical={false} stroke="var(--border)" strokeWidth={1} />
             <XAxis
               dataKey="label"

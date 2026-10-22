@@ -24,7 +24,11 @@ export function StarButton({ starred, onClick }: { starred: boolean; onClick: ()
       aria-label={label}
       aria-pressed={starred}
       title={label}
-      className={cn(BUTTON, starred && "text-accent-yellow hover:text-accent-yellow")}
+      className={cn(
+        BUTTON,
+        starred &&
+          "text-amber-600 hover:text-amber-600 dark:text-accent-yellow dark:hover:text-accent-yellow",
+      )}
     >
       <Star className={cn("size-5", starred && "fill-current")} aria-hidden />
     </button>

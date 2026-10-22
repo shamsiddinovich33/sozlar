@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Loader2, Search } from "lucide-react";
 
@@ -13,27 +13,28 @@ export function LibraryToolbar({ q, sort }: { q: string; sort: LibrarySort }) {
   const router = useRouter();
   const pathname = usePathname();
   const [query, setQuery] = useState(q);
-  const [isPending, startTransition] = useTransition();
-  const firstRender = useRef(true);
 
-  function navigate(nextQuery: string, nextSort: LibrarySort) {
-    const params = new URLSearchParams();
-    if (nextQuery.trim()) params.set("q", nextQuery.trim());
-    if (nextSort !== "recent") params.set("sort", nextSort);
-    const qs = params.toString();
-    startTransition(() => router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false }));
-  }
+  const navigate = useCallback(
+    (nextQuery: string, nextSort: LibrarySort) => {
+      const params = new URLSearchParams();
+      if (nextQuery.trim()) params.set("q", nextQuery.trim());
+      if (nextSort !== "recent") params.set("sort", nextSort);
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    },
+    [pathname, router],
+  );
 
+  // Keep the URL in sync with the search box. Re-checks after every navigation, so a slow
+  // earlier search that lands last can't leave stale results.
   useEffect(() => {
-    if (firstRender.current) {
-      firstRender.current = false;
-      return;
-    }
+    if (query.trim() === q) return;
     const timer = setTimeout(() => navigate(query, sort), SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(timer);
-    // Only the typed query should trigger a debounced search.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query]);
+  }, [query, q, sort, navigate]);
+
+  // Searching until the URL (and so the server-rendered results) matches the box.
+  const isPending = query.trim() !== q;
 
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center">

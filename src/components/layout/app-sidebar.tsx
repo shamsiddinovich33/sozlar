@@ -59,7 +59,10 @@ export function AppSidebar({ defaultCollapsed }: { defaultCollapsed: boolean }) 
                       : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
                   )}
                 >
-                  <Icon className={cn("size-5 shrink-0", active && "text-brand")} aria-hidden />
+                  <Icon
+                    className={cn("size-5 shrink-0", active && "text-brand-text")}
+                    aria-hidden
+                  />
                   <span className={cn(collapsed && "sr-only")}>{label}</span>
                 </Link>
               </li>

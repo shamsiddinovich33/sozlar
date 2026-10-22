@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import { USERNAME_REGEX } from "@/lib/validators/auth";
 
 /** Turns an email or name into a username candidate matching USERNAME_REGEX (3–20 chars). */
-export function toUsernameBase(source: string): string {
+function toUsernameBase(source: string): string {
   const local = source.split("@")[0] ?? "";
   const cleaned = local
     .toLowerCase()

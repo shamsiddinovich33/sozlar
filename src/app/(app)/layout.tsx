@@ -32,9 +32,9 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
           className="mx-auto w-full max-w-6xl flex-1 px-4 pt-6 pb-28 sm:px-6 md:pb-12"
         >
           {children}
+          <CreateSetFab />
         </main>
       </div>
-      <CreateSetFab />
       <MobileTabBar />
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
@@ -10,8 +10,9 @@ type FlipCardProps = {
   back: ReactNode;
   flipped: boolean;
   onFlip: () => void;
-  /** Accessible name for the card button */
-  label: string;
+  /** Screen-reader prefix per side, e.g. "Atama" / "Tarjima" */
+  frontLabel?: string;
+  backLabel?: string;
   className?: string;
   backClassName?: string;
   /** Rendered on top of the card (not flipped), e.g. speaker and star buttons */
@@ -27,19 +28,21 @@ export function FlipCard({
   back,
   flipped,
   onFlip,
-  label,
+  frontLabel,
+  backLabel,
   className,
   backClassName,
   toolbar,
 }: FlipCardProps) {
   const reduceMotion = useReducedMotion();
+  const hintId = useId();
   return (
     <div className={cn("relative [perspective:1400px]", className)}>
       <motion.button
         type="button"
         onClick={onFlip}
-        aria-label={label}
         aria-pressed={flipped}
+        aria-describedby={hintId}
         className="relative block size-full cursor-pointer rounded-2xl [transform-style:preserve-3d] focus-visible:ring-4 focus-visible:ring-ring/60 focus-visible:outline-none"
         initial={false}
         animate={reduceMotion ? { rotateY: 0 } : { rotateY: flipped ? 180 : 0 }}
@@ -50,6 +53,7 @@ export function FlipCard({
           aria-hidden={flipped}
           style={reduceMotion && flipped ? { visibility: "hidden" } : undefined}
         >
+          {frontLabel && <span className="sr-only">{frontLabel}: </span>}
           {front}
         </span>
         <span
@@ -61,9 +65,13 @@ export function FlipCard({
               : { transform: "rotateY(180deg)" }
           }
         >
+          {backLabel && <span className="sr-only">{backLabel}: </span>}
           {back}
         </span>
       </motion.button>
+      <span id={hintId} className="sr-only">
+        Aylantirish uchun bosing yoki Probel tugmasini bosing
+      </span>
       {toolbar && <div className="absolute top-3 right-3 z-10 flex gap-1">{toolbar}</div>}
     </div>
   );

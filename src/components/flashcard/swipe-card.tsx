@@ -44,14 +44,14 @@ export function SwipeCard({ disabled, onSwipe, onDragStart, children }: SwipeCar
       <motion.span
         aria-hidden
         style={{ opacity: knownOpacity }}
-        className="pointer-events-none absolute top-4 left-4 rounded-lg border-2 border-success px-3 py-1 font-bold text-success"
+        className="pointer-events-none absolute top-4 left-4 rounded-lg border-2 border-success px-3 py-1 font-bold text-success-text"
       >
         Bilaman
       </motion.span>
       <motion.span
         aria-hidden
         style={{ opacity: unknownOpacity }}
-        className="pointer-events-none absolute top-4 right-28 rounded-lg border-2 border-error px-3 py-1 font-bold text-error"
+        className="pointer-events-none absolute top-4 right-28 rounded-lg border-2 border-error px-3 py-1 font-bold text-error-text"
       >
         Bilmayman
       </motion.span>

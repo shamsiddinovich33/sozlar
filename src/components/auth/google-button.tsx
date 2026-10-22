@@ -32,7 +32,13 @@ function GoogleIcon() {
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" variant="outline" size="lg" className="w-full" disabled={pending}>
+    <Button
+      type="submit"
+      variant="outline"
+      size="lg"
+      className="h-auto min-h-12 w-full py-2 whitespace-normal"
+      disabled={pending}
+    >
       {pending ? <Loader2 className="animate-spin" aria-hidden /> : <GoogleIcon />}
       {label}
     </Button>

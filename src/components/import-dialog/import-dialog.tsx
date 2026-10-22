@@ -14,10 +14,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   DEFAULT_IMPORT_OPTIONS,
   parseImport,
+  looksLikeHeader,
   validateImportOptions,
   type CardSeparator,
   type ImportOptions,
@@ -55,12 +58,29 @@ export function ImportDialog({ open, onOpenChange, onImport }: ImportDialogProps
 
   const deferredText = useDeferredValue(text);
   const optionsError = validateImportOptions(options);
-  const result = useMemo(() => parseImport(deferredText, options), [deferredText, options]);
+  // The header checkbox follows auto-detection until the user changes it.
+  const [headerTouched, setHeaderTouched] = useState(false);
+  const detectedHeader = useMemo(
+    () => looksLikeHeader(deferredText, options),
+    [deferredText, options],
+  );
+  const effectiveOptions = useMemo<ImportOptions>(
+    () => ({
+      ...options,
+      skipHeader: headerTouched ? options.skipHeader === true : detectedHeader,
+    }),
+    [options, headerTouched, detectedHeader],
+  );
+  const result = useMemo(
+    () => parseImport(deferredText, effectiveOptions),
+    [deferredText, effectiveOptions],
+  );
   const validCount = result.cards.length;
 
   function reset() {
     setText("");
     setOptions(DEFAULT_IMPORT_OPTIONS);
+    setHeaderTouched(false);
   }
 
   async function handleFile(file: File) {
@@ -71,13 +91,14 @@ export function ImportDialog({ open, onOpenChange, onImport }: ImportDialogProps
     const content = await file.text();
     const isTsv = /\.tsv$/i.test(file.name) || (!content.includes(",") && content.includes("\t"));
     setText(content);
+    setHeaderTouched(false);
     setOptions({ termSeparator: isTsv ? "tab" : "comma", cardSeparator: "newline" });
   }
 
   async function handleImport() {
     if (validCount === 0 || optionsError) return;
     setSubmitting(true);
-    const ok = await onImport(text, options);
+    const ok = await onImport(text, effectiveOptions);
     setSubmitting(false);
     if (ok) {
       reset();
@@ -141,6 +162,20 @@ export function ImportDialog({ open, onOpenChange, onImport }: ImportDialogProps
             />
           </div>
 
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="import-skip-header"
+              checked={effectiveOptions.skipHeader === true}
+              onCheckedChange={(checked) => {
+                setHeaderTouched(true);
+                setOptions((o) => ({ ...o, skipHeader: checked === true }));
+              }}
+            />
+            <Label htmlFor="import-skip-header" className="cursor-pointer font-normal">
+              Birinchi qator sarlavha (import qilinmaydi)
+            </Label>
+          </div>
+
           <div className="grid gap-5 sm:grid-cols-2">
             <SeparatorField
               legend="Atama va tarjima orasida"
@@ -172,7 +207,7 @@ export function ImportDialog({ open, onOpenChange, onImport }: ImportDialogProps
               <p role="status" className="text-sm text-muted-foreground">
                 <span className="font-semibold text-foreground">{validCount} ta karta</span>
                 {result.invalidCount > 0 && (
-                  <span className="text-error">
+                  <span className="text-error-text">
                     {" "}
                     · {result.invalidCount} ta xato qator (o&apos;tkazib yuboriladi)
                   </span>
@@ -180,7 +215,7 @@ export function ImportDialog({ open, onOpenChange, onImport }: ImportDialogProps
               </p>
             </div>
             {optionsError ? (
-              <p className="text-sm text-error">{optionsError}</p>
+              <p className="text-sm text-error-text">{optionsError}</p>
             ) : result.rows.length === 0 ? (
               <p className="rounded-lg bg-secondary px-3 py-6 text-center text-sm text-muted-foreground">
                 Joylashtirilgan ma&apos;lumotlar shu yerda ko&apos;rinadi
@@ -200,7 +235,9 @@ export function ImportDialog({ open, onOpenChange, onImport }: ImportDialogProps
                     <span className="break-words">
                       {row.definition || "—"}
                       {row.error && (
-                        <span className="block text-xs font-semibold text-error">{row.error}</span>
+                        <span className="block text-xs font-semibold text-error-text">
+                          {row.error}
+                        </span>
                       )}
                     </span>
                   </li>

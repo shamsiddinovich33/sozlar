@@ -35,7 +35,6 @@ export function DemoFlashcard() {
           className="aspect-[3/2] w-full"
           flipped={flipped}
           onFlip={() => setFlipped((f) => !f)}
-          label={`Namuna karta: ${flipped ? card.definition : card.term}. Aylantirish uchun bosing`}
           backClassName="bg-surface text-white"
           front={
             <>

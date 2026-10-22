@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { DEFAULT_SET_TITLE, LIMITS } from "@/lib/limits";
 
-export const cardIdSchema = z.string().regex(/^[A-Za-z0-9_-]{8,64}$/, "Noto'g'ri identifikator");
+const cardIdSchema = z.string().regex(/^[A-Za-z0-9_-]{8,64}$/, "Noto'g'ri identifikator");
 export const setIdSchema = cardIdSchema;
 
 const cardText = (label: string) =>
@@ -23,7 +23,7 @@ export const cardInputSchema = z.object({
     .max(LIMITS.cardsPerSet * 2),
 });
 
-export const setDetailsSchema = z.object({
+const setDetailsSchema = z.object({
   title: z
     .string()
     .trim()
@@ -53,11 +53,12 @@ export const saveSetSchema = setDetailsSchema
 export type SaveSetInput = z.input<typeof saveSetSchema>;
 export type CardInput = z.infer<typeof cardInputSchema>;
 
-export const importOptionsSchema = z.object({
+const importOptionsSchema = z.object({
   termSeparator: z.enum(["tab", "comma", "custom"]),
   cardSeparator: z.enum(["newline", "semicolon", "custom"]),
   customTermSeparator: z.string().max(10).optional(),
   customCardSeparator: z.string().max(10).optional(),
+  skipHeader: z.boolean().optional(),
 });
 
 export const importCardsSchema = z.object({

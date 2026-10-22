@@ -350,16 +350,16 @@ export function FlashcardsPlayer({ setId, title, cards }: FlashcardsPlayerProps)
           aria-labelledby="round-done"
           className="grid justify-items-center gap-6 rounded-2xl bg-card p-8 text-center sm:p-10"
         >
-          <h1 id="round-done" className="text-2xl font-bold sm:text-3xl">
+          <h2 id="round-done" className="text-2xl font-bold sm:text-3xl">
             Ajoyib! Barcha kartalarni ko&apos;rib chiqdingiz
-          </h1>
+          </h2>
           <div className="grid w-full max-w-sm grid-cols-2 gap-4">
             <div className="grid gap-1 rounded-xl bg-success/15 p-4">
-              <span className="text-3xl font-bold text-success">{counts.known}</span>
+              <span className="text-3xl font-bold text-success-text">{counts.known}</span>
               <span className="text-sm">Bilaman</span>
             </div>
             <div className="grid gap-1 rounded-xl bg-error/15 p-4">
-              <span className="text-3xl font-bold text-error">{counts.unknown}</span>
+              <span className="text-3xl font-bold text-error-text">{counts.unknown}</span>
               <span className="text-sm">Bilmayman</span>
             </div>
           </div>
@@ -397,8 +397,8 @@ export function FlashcardsPlayer({ setId, title, cards }: FlashcardsPlayerProps)
             {position} / {total}
           </span>
           <span className="text-muted-foreground">
-            <span className="text-success">{counts.known} bilaman</span> ·{" "}
-            <span className="text-error">{counts.unknown} bilmayman</span>
+            <span className="text-success-text">{counts.known} bilaman</span> ·{" "}
+            <span className="text-error-text">{counts.unknown} bilmayman</span>
           </span>
         </div>
         <Progress
@@ -428,7 +428,8 @@ export function FlashcardsPlayer({ setId, title, cards }: FlashcardsPlayerProps)
                   onFlip={() => {
                     if (!wasDragged()) act("flip");
                   }}
-                  label={`${showingTerm ? "Atama" : "Tarjima"}: ${deck.flipped ? back : front}. Aylantirish uchun bosing`}
+                  frontLabel={options.termFirst ? "Atama" : "Tarjima"}
+                  backLabel={options.termFirst ? "Tarjima" : "Atama"}
                   front={<CardFaceText text={front} />}
                   back={<CardFaceText text={back} />}
                   toolbar={
@@ -459,11 +460,11 @@ export function FlashcardsPlayer({ setId, title, cards }: FlashcardsPlayerProps)
           variant="outline"
           size="lg"
           onClick={() => act("unknown")}
-          className="border-error/60 px-3 text-error hover:bg-error/10 hover:text-error sm:px-6"
+          className="border-error/60 px-3 text-error-text hover:bg-error/10 hover:text-error-text sm:px-6"
           aria-keyshortcuts="J"
         >
           <X aria-hidden />
-          Bilmayman
+          <span className="max-[359px]:sr-only">Bilmayman</span>
         </Button>
         <div className="flex gap-0 sm:gap-2">
           <Button
@@ -490,11 +491,11 @@ export function FlashcardsPlayer({ setId, title, cards }: FlashcardsPlayerProps)
           variant="outline"
           size="lg"
           onClick={() => act("known")}
-          className="border-success/60 px-3 text-success hover:bg-success/10 hover:text-success sm:px-6"
+          className="border-success/60 px-3 text-success-text hover:bg-success/10 hover:text-success-text sm:px-6"
           aria-keyshortcuts="K"
         >
           <Check aria-hidden />
-          Bilaman
+          <span className="max-[359px]:sr-only">Bilaman</span>
         </Button>
       </div>
       <p className="text-center text-xs text-muted-foreground">

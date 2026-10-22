@@ -2,7 +2,7 @@ export const APP_TIME_ZONE = "Asia/Tashkent";
 
 export type RecencyBucket = "today" | "thisWeek" | "earlier";
 
-export const RECENCY_LABELS: Record<RecencyBucket, string> = {
+const RECENCY_LABELS: Record<RecencyBucket, string> = {
   today: "Bugun",
   thisWeek: "Shu hafta",
   earlier: "Oldinroq",

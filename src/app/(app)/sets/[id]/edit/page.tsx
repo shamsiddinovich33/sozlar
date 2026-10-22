@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { SetEditor } from "@/components/set-editor/set-editor";
 import { db } from "@/lib/db";
@@ -13,7 +13,8 @@ export default async function EditSetPage({ params }: { params: Promise<{ id: st
   const parsedId = setIdSchema.safeParse((await params).id);
   if (!parsedId.success) notFound();
 
-  // Only the owner can edit; anyone else gets a 404 so private sets are not revealed.
+  // Only the owner can edit. Others who can view the set are sent to the set page; sets they
+  // can't see were already answered with a 404 by the [id] layout.
   const set = await db.set.findFirst({
     where: { id: parsedId.data, ownerId: user.id },
     select: {
@@ -28,7 +29,7 @@ export default async function EditSetPage({ params }: { params: Promise<{ id: st
       },
     },
   });
-  if (!set) notFound();
+  if (!set) redirect(`/sets/${parsedId.data}`);
 
   return (
     <SetEditor

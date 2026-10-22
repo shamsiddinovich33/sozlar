@@ -82,7 +82,7 @@ export function DeleteAccount({
               </div>
             )}
             {error && (
-              <p role="alert" className="text-sm text-error">
+              <p role="alert" className="text-sm text-error-text">
                 {error}
               </p>
             )}

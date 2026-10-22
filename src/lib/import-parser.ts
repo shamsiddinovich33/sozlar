@@ -8,6 +8,8 @@ export type ImportOptions = {
   cardSeparator: CardSeparator;
   customTermSeparator?: string;
   customCardSeparator?: string;
+  /** Skip the first non-blank row (a column header such as "term,definition"). */
+  skipHeader?: boolean;
 };
 
 export const DEFAULT_IMPORT_OPTIONS: ImportOptions = {
@@ -132,8 +134,13 @@ export function parseImport(text: string, options: ImportOptions): ParseResult {
   if (!termSep || !cardSep || termSep === cardSep) return { rows: [], cards: [], invalidCount: 0 };
 
   const rows: ParsedRow[] = [];
+  let headerSkipped = !options.skipHeader;
   tokenize(text, termSep, cardSep).forEach((fields, index) => {
     if (fields.every((f) => f.trim() === "")) return;
+    if (!headerSkipped) {
+      headerSkipped = true;
+      return;
+    }
 
     const term = (fields[0] ?? "").trim();
     // Extra separators belong to the definition (e.g. "apple, olma, sabzi").
@@ -153,4 +160,48 @@ export function parseImport(text: string, options: ImportOptions): ParseResult {
     .filter((r) => r.error === null)
     .map(({ term, definition }) => ({ term, definition }));
   return { rows, cards, invalidCount: rows.length - cards.length };
+}
+
+const TERM_HEADERS = new Set([
+  "term",
+  "terms",
+  "word",
+  "words",
+  "english",
+  "front",
+  "question",
+  "atama",
+  "atamalar",
+  "so'z",
+  "so'zlar",
+  "soz",
+  "sozlar",
+  "inglizcha",
+]);
+const DEFINITION_HEADERS = new Set([
+  "definition",
+  "definitions",
+  "meaning",
+  "translation",
+  "back",
+  "answer",
+  "uzbek",
+  "tarjima",
+  "tarjimasi",
+  "ma'no",
+  "ma'nosi",
+  "o'zbekcha",
+  "izoh",
+]);
+
+/** Guesses whether the first row is a column header like "term,definition" or "So'z;Tarjima". */
+export function looksLikeHeader(text: string, options: ImportOptions): boolean {
+  const first = parseImport(text, { ...options, skipHeader: false }).rows[0];
+  if (!first) return false;
+  const norm = (s: string) =>
+    s
+      .toLocaleLowerCase()
+      .replace(/[\u2018\u2019\u02BB\u02BC`]/g, "'")
+      .trim();
+  return TERM_HEADERS.has(norm(first.term)) || DEFINITION_HEADERS.has(norm(first.definition));
 }

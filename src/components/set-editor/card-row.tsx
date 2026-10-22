@@ -60,7 +60,7 @@ function CardRowInner({ card, index, isDuplicate, onChange, onDelete }: CardRowP
             type="button"
             onClick={() => onDelete(card.id)}
             aria-label={`${number}-kartani o'chirish`}
-            className="grid size-9 cursor-pointer place-items-center rounded-md text-muted-foreground hover:bg-accent hover:text-error focus-visible:ring-[3px] focus-visible:ring-ring/60 focus-visible:outline-none"
+            className="grid size-9 cursor-pointer place-items-center rounded-md text-muted-foreground hover:bg-accent hover:text-error-text focus-visible:ring-[3px] focus-visible:ring-ring/60 focus-visible:outline-none"
           >
             <Trash2 className="size-4" aria-hidden />
           </button>
@@ -107,13 +107,13 @@ function CardRowInner({ card, index, isDuplicate, onChange, onDelete }: CardRowP
       {(incomplete || isDuplicate) && (
         <div className="grid gap-1 px-4 pb-3 text-sm">
           {incomplete && (
-            <p className="text-error group-focus-within/row:hidden">
+            <p className="text-error-text group-focus-within/row:hidden">
               {termEmpty ? "Atama" : "Tarjima"} bo&apos;sh bo&apos;lmasligi kerak — karta
               saqlanmaydi
             </p>
           )}
           {isDuplicate && (
-            <p className="text-amber-600 dark:text-accent-yellow">
+            <p className="text-amber-700 dark:text-accent-yellow">
               Bu so&apos;z to&apos;plamda takrorlangan
             </p>
           )}

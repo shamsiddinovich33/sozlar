@@ -391,7 +391,7 @@ export function SetEditor({ initial }: { initial: SetEditorInitial }) {
       <button
         type="button"
         onClick={handleAdd}
-        className="flex h-20 cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-card/40 font-semibold tracking-wide uppercase transition-colors hover:border-brand hover:text-brand focus-visible:ring-[3px] focus-visible:ring-ring/60 focus-visible:outline-none"
+        className="flex h-20 cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-card/40 font-semibold tracking-wide uppercase transition-colors hover:border-brand hover:text-brand-text focus-visible:ring-[3px] focus-visible:ring-ring/60 focus-visible:outline-none"
       >
         <Plus className="size-5" aria-hidden />
         So&apos;z qo&apos;shish

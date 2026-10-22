@@ -1,7 +1,7 @@
 import { UserAvatar } from "@/components/layout/user-avatar";
 import type { SetOwner } from "@/types/sets";
 
-export function termCountLabel(count: number): string {
+function termCountLabel(count: number): string {
   return `${count} ta atama`;
 }
 

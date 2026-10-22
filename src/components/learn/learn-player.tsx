@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useMutation } from "@tanstack/react-query";
+import { motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, CheckCircle2, Settings2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 
@@ -57,6 +58,7 @@ export function LearnPlayer({ setId, title, cards, saved }: LearnPlayerProps) {
   const store = useLearnStore();
   const { session, question, phase, feedback, pendingTyped, promptSide } = store;
   const { supported: canSpeak, speak } = useSpeech();
+  const reduceMotion = useReducedMotion();
   const [started, setStarted] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [confirmRestart, setConfirmRestart] = useState(false);
@@ -219,7 +221,7 @@ export function LearnPlayer({ setId, title, cards, saved }: LearnPlayerProps) {
         <section className="grid justify-items-center gap-5 rounded-2xl bg-card p-8 text-center sm:p-10">
           {allMasteredOnLoad ? (
             <>
-              <h1 className="text-2xl font-bold">Barcha so&apos;zlar o&apos;zlashtirilgan!</h1>
+              <h2 className="text-2xl font-bold">Barcha so&apos;zlar o&apos;zlashtirilgan!</h2>
               <p className="text-muted-foreground">
                 Qiyin so&apos;zlarni takrorlashingiz yoki boshidan o&apos;rganishingiz mumkin.
               </p>
@@ -236,10 +238,10 @@ export function LearnPlayer({ setId, title, cards, saved }: LearnPlayerProps) {
             </>
           ) : (
             <>
-              <h1 className="text-2xl font-bold">Xush kelibsiz!</h1>
+              <h2 className="text-2xl font-bold">Xush kelibsiz!</h2>
               <p className="text-lg">
                 Siz bu to&apos;plamning{" "}
-                <span className="font-bold text-success">{savedPercent}%</span> qismini
+                <span className="font-bold text-success-text">{savedPercent}%</span> qismini
                 o&apos;zlashtirgansiz.
               </p>
               {savedInProgress > 0 && (
@@ -310,7 +312,14 @@ export function LearnPlayer({ setId, title, cards, saved }: LearnPlayerProps) {
       <LearnProgress session={session} />
 
       {question && (
-        <section aria-label="Savol" className="grid gap-5 rounded-2xl bg-card p-5 shadow-sm sm:p-8">
+        <motion.section
+          key={question.seq}
+          aria-label="Savol"
+          initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+          className="grid gap-5 rounded-2xl bg-card p-5 shadow-sm sm:p-8"
+        >
           <div className="flex items-start justify-between gap-3">
             <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
               {promptLabel}
@@ -361,7 +370,7 @@ export function LearnPlayer({ setId, title, cards, saved }: LearnPlayerProps) {
                 </div>
                 <div className="flex gap-2">
                   <dt className="text-muted-foreground">To&apos;g&apos;ri javob:</dt>
-                  <dd className="font-semibold text-success">{question.answer}</dd>
+                  <dd className="font-semibold text-success-text">{question.answer}</dd>
                 </div>
               </dl>
               <div className="flex flex-col gap-2 sm:flex-row">
@@ -394,11 +403,18 @@ export function LearnPlayer({ setId, title, cards, saved }: LearnPlayerProps) {
                 <p
                   className={cn(
                     "flex items-center gap-2 text-lg font-bold",
-                    feedback.correct ? "text-success" : "text-error",
+                    feedback.correct ? "text-success-text" : "text-error-text",
                   )}
                 >
                   {feedback.correct ? (
-                    <CheckCircle2 className="size-6" aria-hidden />
+                    <motion.span
+                      initial={reduceMotion ? false : { scale: 0.4, rotate: -20 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 18 }}
+                      className="inline-flex"
+                    >
+                      <CheckCircle2 className="size-6" aria-hidden />
+                    </motion.span>
                   ) : (
                     <XCircle className="size-6" aria-hidden />
                   )}
@@ -410,14 +426,14 @@ export function LearnPlayer({ setId, title, cards, saved }: LearnPlayerProps) {
                       {feedback.typed && (
                         <div className="flex gap-2">
                           <dt className="text-muted-foreground">Sizning javobingiz:</dt>
-                          <dd className="font-semibold text-error line-through">
+                          <dd className="font-semibold text-error-text line-through">
                             {feedback.typed}
                           </dd>
                         </div>
                       )}
                       <div className="flex gap-2">
                         <dt className="text-muted-foreground">To&apos;g&apos;ri javob:</dt>
-                        <dd className="font-semibold text-success">{question.answer}</dd>
+                        <dd className="font-semibold text-success-text">{question.answer}</dd>
                       </div>
                     </dl>
                   )}
@@ -431,7 +447,7 @@ export function LearnPlayer({ setId, title, cards, saved }: LearnPlayerProps) {
               </div>
             )}
           </div>
-        </section>
+        </motion.section>
       )}
 
       <CheckinDialog

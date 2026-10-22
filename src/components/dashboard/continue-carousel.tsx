@@ -37,7 +37,7 @@ export function ContinueCarousel({ sets }: { sets: ContinueSet[] }) {
         {sets.map((set) => (
           <li
             key={set.id}
-            className="flex w-[85%] shrink-0 snap-start flex-col gap-4 rounded-xl bg-card p-5 shadow-sm sm:w-80"
+            className="flex w-[85%] shrink-0 animate-in snap-start flex-col gap-4 rounded-xl bg-card p-5 shadow-sm duration-200 fade-in-0 slide-in-from-bottom-1 sm:w-80"
           >
             <div className="grid gap-2">
               <Link

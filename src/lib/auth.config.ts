@@ -1,9 +1,9 @@
 import type { NextAuthConfig } from "next-auth";
 
 /** Route prefixes that require an authenticated user. */
-export const PROTECTED_PREFIXES = ["/dashboard", "/library", "/profile", "/sets"];
+const PROTECTED_PREFIXES = ["/dashboard", "/library", "/profile", "/sets"];
 /** Routes a signed-in user should not see (redirected to the dashboard). */
-export const GUEST_ONLY_ROUTES = ["/", "/login", "/register"];
+const GUEST_ONLY_ROUTES = ["/", "/login", "/register"];
 
 export function isProtectedPath(pathname: string): boolean {
   return PROTECTED_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));

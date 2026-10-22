@@ -44,13 +44,16 @@ export default async function LearnPage({ params }: PageProps) {
   const saved = await getSetProgress(set.id, user.id);
 
   return (
-    <LearnPlayer
-      // Remount when progress changes on the server (e.g. after a reset elsewhere).
-      key={set.id}
-      setId={set.id}
-      title={set.title}
-      cards={set.cards.map(({ id, term, definition }) => ({ id, term, definition }))}
-      saved={saved}
-    />
+    <>
+      <h1 className="sr-only">O&apos;rganish: {set.title}</h1>
+      <LearnPlayer
+        // Remount when progress changes on the server (e.g. after a reset elsewhere).
+        key={set.id}
+        setId={set.id}
+        title={set.title}
+        cards={set.cards.map(({ id, term, definition }) => ({ id, term, definition }))}
+        saved={saved}
+      />
+    </>
   );
 }

@@ -23,6 +23,8 @@ export type LearnCard = { id: string; term: string; definition: string };
 export type PromptSide = "definition" | "term";
 
 export type Question = {
+  /** Unique per asked question (keys the enter animation) */
+  seq: number;
   cardId: string;
   type: QuestionType;
   prompt: string;
@@ -71,6 +73,8 @@ type LearnState = {
   syncProgress: (progress: CardProgressState) => void;
 };
 
+let questionSeq = 0;
+
 function buildQuestion(
   session: LearnSession,
   cards: Record<string, LearnCard>,
@@ -87,7 +91,9 @@ function buildQuestion(
     type === "multiple_choice"
       ? buildChoices({ cardId, text: card[answerSide] }, pool, Math.random)
       : { options: [], correctIndex: -1 };
+  questionSeq += 1;
   return {
+    seq: questionSeq,
     cardId,
     type,
     prompt: card[promptSide],

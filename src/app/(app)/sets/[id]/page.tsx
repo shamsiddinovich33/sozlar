@@ -74,7 +74,7 @@ export default async function SetPage({ params }: SetPageProps) {
             );
             const content = (
               <>
-                <Icon className="size-5 text-brand" aria-hidden />
+                <Icon className="size-5 text-brand-text" aria-hidden />
                 {label}
               </>
             );
@@ -98,7 +98,7 @@ export default async function SetPage({ params }: SetPageProps) {
                 {" "}
                 <Link
                   href={`/sets/${set.id}/edit`}
-                  className="font-semibold text-primary hover:underline"
+                  className="font-semibold text-brand-text hover:underline"
                 >
                   Karta qo&apos;shish
                 </Link>

@@ -53,7 +53,13 @@ export function StreakHeatmap({
         </span>
       </figcaption>
 
-      <div ref={scrollerRef} className="relative overflow-x-auto pb-1">
+      <div
+        ref={scrollerRef}
+        tabIndex={0}
+        role="region"
+        aria-label="Faollik xaritasi (gorizontal aylantiriladi)"
+        className="relative overflow-x-auto rounded-md pb-1 focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+      >
         <div
           role="img"
           aria-label={`So'nggi ${weeks.length} hafta: ${activeDays} kun faol bo'lgansiz, joriy seriya ${streak} kun`}

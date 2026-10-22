@@ -18,7 +18,7 @@ export function UnlockForm({ setId, title }: { setId: string; title: string }) {
   return (
     <div className="mx-auto grid w-full max-w-md gap-6 rounded-2xl bg-card p-6 shadow-lg sm:p-8">
       <div className="grid justify-items-center gap-3 text-center">
-        <span className="grid size-14 place-items-center rounded-full bg-brand/15 text-brand">
+        <span className="grid size-14 place-items-center rounded-full bg-brand/15 text-brand-text">
           <KeyRound className="size-7" aria-hidden />
         </span>
         <h1 className="text-xl font-bold">{title}</h1>
@@ -53,7 +53,7 @@ export function UnlockForm({ setId, title }: { setId: string; title: string }) {
             autoFocus
           />
           {error && (
-            <p id="unlock-error" role="alert" className="text-sm text-error">
+            <p id="unlock-error" role="alert" className="text-sm text-error-text">
               {error}
             </p>
           )}

@@ -34,7 +34,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       <LoginForm callbackUrl={callbackUrl} initialError={initialError} />
       <p className="text-center text-sm text-muted-foreground">
         Hisobingiz yo&apos;qmi?{" "}
-        <Link href="/register" className="font-semibold text-primary hover:underline">
+        <Link href="/register" className="font-semibold text-brand-text hover:underline">
           Ro&apos;yxatdan o&apos;ting
         </Link>
       </p>

@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import { LIMITS } from "./limits";
-import { IMPORT_ERRORS, parseImport, validateImportOptions } from "./import-parser";
+import {
+  IMPORT_ERRORS,
+  looksLikeHeader,
+  parseImport,
+  validateImportOptions,
+} from "./import-parser";
 
 const tab = { termSeparator: "tab", cardSeparator: "newline" } as const;
 const csv = { termSeparator: "comma", cardSeparator: "newline" } as const;
@@ -104,5 +109,21 @@ describe("validateImportOptions", () => {
         cardSeparator: "semicolon",
       }),
     ).toBe("Ajratuvchilar bir xil bo'lmasligi kerak");
+  });
+});
+
+describe("header rows", () => {
+  it("skips the first non-blank row when asked", () => {
+    const result = parseImport("\nterm,definition\napple,olma", { ...csv, skipHeader: true });
+    expect(result.cards).toEqual([{ term: "apple", definition: "olma" }]);
+    expect(result.rows.map((r) => r.row)).toEqual([3]);
+  });
+
+  it("detects common English and Uzbek headers", () => {
+    expect(looksLikeHeader("term,definition\napple,olma", csv)).toBe(true);
+    expect(looksLikeHeader("So\u2018z\tTarjima\napple\tolma", tab)).toBe(true);
+    expect(looksLikeHeader("Word,Meaning\n", csv)).toBe(true);
+    expect(looksLikeHeader("apple,olma\nbook,kitob", csv)).toBe(false);
+    expect(looksLikeHeader("", csv)).toBe(false);
   });
 });

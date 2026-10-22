@@ -60,8 +60,8 @@ export default function HomePage() {
         <section className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 md:py-24 lg:grid-cols-2">
           <div className="grid gap-6 text-center lg:text-left">
             <h1 className="text-4xl font-extrabold tracking-tight text-balance sm:text-5xl lg:text-6xl">
-              So&apos;zlarni <span className="text-brand">tezroq</span> va{" "}
-              <span className="text-accent-yellow">mustahkam</span> yodlang
+              So&apos;zlarni <span className="text-brand-text">tezroq</span> va{" "}
+              <span className="text-amber-700 dark:text-accent-yellow">mustahkam</span> yodlang
             </h1>
             <p className="mx-auto max-w-xl text-lg text-muted-foreground lg:mx-0">
               Kartochkalar va xatolaringizga moslashadigan aqlli o&apos;rganish rejimi bilan xorijiy
@@ -100,7 +100,7 @@ export default function HomePage() {
                   key={title}
                   className="rounded-xl bg-card p-6 shadow-sm transition-transform duration-200 hover:-translate-y-1"
                 >
-                  <span className="grid size-12 place-items-center rounded-xl bg-brand/15 text-brand">
+                  <span className="grid size-12 place-items-center rounded-xl bg-brand/15 text-brand-text">
                     <Icon className="size-6" aria-hidden />
                   </span>
                   <h3 className="mt-4 text-lg font-semibold">{title}</h3>

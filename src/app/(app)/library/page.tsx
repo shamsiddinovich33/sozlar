@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Link from "next/link";
 import { BookOpenText, SearchX } from "lucide-react";
 
 import { LibraryToolbar } from "@/components/library/library-toolbar";
 import { EmptyState } from "@/components/sets/empty-state";
 import { SetListItem } from "@/components/sets/set-list-item";
+import { SetListSkeleton } from "@/components/sets/set-list-skeleton";
 import { Button } from "@/components/ui/button";
 import { groupByRecency } from "@/lib/dates";
 import { getLibrarySets } from "@/lib/queries/sets";
 import { requireUser } from "@/lib/session";
 import { librarySearchSchema } from "@/lib/validators/library";
+import type { LibrarySearch } from "@/lib/validators/library";
 import type { SetSummary } from "@/types/sets";
 
 export const metadata: Metadata = { title: "Kutubxonam" };
@@ -31,13 +34,25 @@ function SetList({ sets }: { sets: SetSummary[] }) {
 export default async function LibraryPage({ searchParams }: LibraryPageProps) {
   const user = await requireUser();
   const search = librarySearchSchema.parse(await searchParams);
-  const sets = await getLibrarySets(user.id, search);
 
+  // The results suspend on their own (keyed by the search), so the toolbar stays interactive.
+  // A segment-level loading.tsx is deliberately not used here: combined with search-param
+  // navigation it could leave the router stuck on the previous URL.
   return (
     <div className="grid gap-6">
       <h1 className="text-2xl font-bold sm:text-3xl">Kutubxonam</h1>
       <LibraryToolbar q={search.q ?? ""} sort={search.sort} />
+      <Suspense key={`${search.q ?? ""}|${search.sort}`} fallback={<SetListSkeleton count={6} />}>
+        <LibraryResults userId={user.id} search={search} />
+      </Suspense>
+    </div>
+  );
+}
 
+async function LibraryResults({ userId, search }: { userId: string; search: LibrarySearch }) {
+  const sets = await getLibrarySets(userId, search);
+  return (
+    <>
       <p className="sr-only" role="status">
         {sets.length} ta to&apos;plam topildi
       </p>
@@ -80,6 +95,6 @@ export default async function LibraryPage({ searchParams }: LibraryPageProps) {
           </section>
         ))
       )}
-    </div>
+    </>
   );
 }

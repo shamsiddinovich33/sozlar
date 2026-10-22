@@ -32,7 +32,8 @@ export function SetStudyView({ cards }: { cards: ViewerCard[] }) {
             className="aspect-[4/3] w-full sm:aspect-[16/9]"
             flipped={flipped}
             onFlip={() => setFlipped((f) => !f)}
-            label={`${flipped ? "Tarjima" : "Atama"}: ${flipped ? card.definition : card.term}. Aylantirish uchun bosing`}
+            frontLabel="Atama"
+            backLabel="Tarjima"
             front={<CardFaceText text={card.term} />}
             back={<CardFaceText text={card.definition} />}
             toolbar={
@@ -98,7 +99,7 @@ export function SetStudyView({ cards }: { cards: ViewerCard[] }) {
                   <div className="flex items-center gap-2">
                     <MasteryBadge mastery={c.mastery} />
                     {c.wrongCount > 0 && (
-                      <span className="text-xs whitespace-nowrap text-error">
+                      <span className="text-xs whitespace-nowrap text-error-text">
                         {c.wrongCount} ta xato
                       </span>
                     )}

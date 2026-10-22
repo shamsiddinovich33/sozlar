@@ -20,7 +20,7 @@ export type DeckAction =
 export type OrderOptions = { shuffle: boolean; starredOnly: boolean; seed: number };
 
 /** Deterministic PRNG (mulberry32), so shuffles are reproducible in tests. */
-export function createRng(seed: number): () => number {
+function createRng(seed: number): () => number {
   let a = seed >>> 0;
   return () => {
     a = (a + 0x6d2b79f5) >>> 0;

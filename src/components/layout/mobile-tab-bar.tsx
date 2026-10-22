@@ -23,7 +23,7 @@ export function MobileTabBar() {
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "flex h-16 flex-col items-center justify-center gap-1 text-xs font-semibold transition-colors",
-                  active ? "text-brand" : "text-muted-foreground hover:text-foreground",
+                  active ? "text-brand-text" : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 <Icon className="size-5" aria-hidden />

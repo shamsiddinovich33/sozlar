@@ -132,7 +132,7 @@ function PrivacyForm({ onOpenChange, visibility, hasPassword, onSave }: PrivacyD
         )}
 
         {error && (
-          <p role="alert" className="text-sm text-error">
+          <p role="alert" className="text-sm text-error-text">
             {error}
           </p>
         )}

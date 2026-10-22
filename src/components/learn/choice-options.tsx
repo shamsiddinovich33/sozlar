@@ -36,7 +36,6 @@ export function ChoiceOptions({ options, correctIndex, feedback, onChoose }: Cho
             onClick={() => onChoose(index)}
             disabled={answered}
             aria-keyshortcuts={String(index + 1)}
-            aria-label={`${index + 1}: ${option.text}${state === "correct" || state === "reveal" ? " — to'g'ri javob" : state === "wrong" ? " — sizning javobingiz, noto'g'ri" : ""}`}
             className={cn(
               "flex min-h-16 cursor-pointer items-center gap-3 rounded-xl border-2 border-border bg-card px-4 py-3 text-left font-medium transition-all duration-150 focus-visible:ring-[3px] focus-visible:ring-ring/60 focus-visible:outline-none disabled:cursor-default",
               state === "idle" && "hover:border-brand hover:bg-accent/40",
@@ -47,11 +46,10 @@ export function ChoiceOptions({ options, correctIndex, feedback, onChoose }: Cho
             )}
           >
             <span
-              aria-hidden
               className={cn(
                 "grid size-7 shrink-0 place-items-center rounded-full bg-secondary text-sm font-bold",
-                state === "correct" && "bg-success text-white",
-                state === "wrong" && "bg-error text-white",
+                state === "correct" && "bg-success text-navy",
+                state === "wrong" && "bg-error text-navy",
               )}
             >
               {state === "correct" ? (
@@ -63,6 +61,12 @@ export function ChoiceOptions({ options, correctIndex, feedback, onChoose }: Cho
               )}
             </span>
             <span className="break-words">{option.text}</span>
+            {(state === "correct" || state === "reveal") && (
+              <span className="sr-only"> — to&apos;g&apos;ri javob</span>
+            )}
+            {state === "wrong" && (
+              <span className="sr-only"> — sizning javobingiz, noto&apos;g&apos;ri</span>
+            )}
           </button>
         );
       })}

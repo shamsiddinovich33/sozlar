@@ -21,7 +21,7 @@ export default function RegisterPage() {
       <RegisterForm />
       <p className="text-center text-sm text-muted-foreground">
         Hisobingiz bormi?{" "}
-        <Link href="/login" className="font-semibold text-primary hover:underline">
+        <Link href="/login" className="font-semibold text-brand-text hover:underline">
           Kirish
         </Link>
       </p>
