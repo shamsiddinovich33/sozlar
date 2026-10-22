@@ -4,3 +4,7 @@ onlyBuiltDependencies:
   - esbuild
   - prisma
   - unrs-resolver
+
+# Only install package versions that have been public for at least a day
+# (matches pnpm 11+'s default supply-chain policy).
+minimumReleaseAge: 1440

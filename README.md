@@ -115,3 +115,7 @@ session can be resumed at any time.
 - Text-to-speech uses the browser's free Web Speech API; terms are read in English and
   definitions in Uzbek (falling back to the default voice when no Uzbek voice is installed).
 - Email changes are not verified, because the app does not send emails.
+- `pnpm-workspace.yaml` sets `minimumReleaseAge: 1440`: pnpm only installs package versions that
+  have been public for at least a day (the default supply-chain policy of newer pnpm releases).
+  If an install reports `ERR_PNPM_MINIMUM_RELEASE_AGE_VIOLATION` after a dependency update, wait a
+  day or re-resolve with `pnpm install` on pnpm 10.16+.
