@@ -15,7 +15,14 @@ import {
   X,
 } from "lucide-react";
 
-import { finishStudySession, startStudySession } from "@/app/(app)/sets/study-actions";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+
+import {
+  finishStudySession,
+  startStudySession,
+  submitAnswer,
+} from "@/app/(app)/sets/study-actions";
 import { SpeakButton, StarButton } from "@/components/flashcard/card-tool-buttons";
 import { CardFaceText, FlipCard } from "@/components/flashcard/flip-card";
 import { SwipeCard } from "@/components/flashcard/swipe-card";
@@ -159,6 +166,19 @@ export function FlashcardsPlayer({ setId, title, cards }: FlashcardsPlayerProps)
     });
   }, [deck.finished, deck.order.length, counts.known, counts.unknown]);
 
+  // "Bilaman" / "Bilmayman" update word progress with the same rules as Learn.
+  const deckRef = useRef(deck);
+  deckRef.current = deck;
+  const recordProgress = useMutation({
+    mutationFn: async (vars: { cardId: string; correct: boolean }) => {
+      const result = await submitAnswer({ setId, ...vars });
+      if (!result.ok) throw new Error(result.error);
+      return result.data;
+    },
+    retry: 2,
+    onError: () => toast.error("Natija saqlanmadi. Internet aloqasini tekshiring"),
+  });
+
   const stopAutoplay = useCallback(() => {
     setOptions((o) => (o.autoplay ? { ...o, autoplay: false } : o));
   }, []);
@@ -171,11 +191,14 @@ export function FlashcardsPlayer({ setId, title, cards }: FlashcardsPlayerProps)
         setDirection(action === "next" ? 1 : -1);
         dispatch({ type: action });
       } else {
+        const current = deckRef.current;
+        const cardId = current.finished ? undefined : current.order[current.index];
+        if (cardId) recordProgress.mutate({ cardId, correct: action === "known" });
         setDirection(action === "known" ? 1 : -1);
         dispatch({ type: "mark", result: action });
       }
     },
-    [stopAutoplay],
+    [stopAutoplay, recordProgress],
   );
 
   // Autoplay: show the front, flip, then move on.

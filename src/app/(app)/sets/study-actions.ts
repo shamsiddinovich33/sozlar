@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { ACTION_ERRORS, ActionError, requireUserId, runAction } from "@/lib/action";
 import { db } from "@/lib/db";
 import { verifyPassword } from "@/lib/password";
+import { applyAnswerInDb } from "@/lib/queries/learn";
 import { getOwnedSetOrThrow } from "@/lib/queries/owned-set";
 import { getSetAccess } from "@/lib/queries/set-view";
 import { setUnlockLimiter } from "@/lib/rate-limit";
@@ -15,8 +16,10 @@ import {
   finishSessionSchema,
   setIdSchema,
   studyModeSchema,
+  submitAnswerSchema,
   unlockSetSchema,
 } from "@/lib/validators/set";
+import type { CardProgressState } from "@/lib/learning";
 import type { ActionResult } from "@/types/actions";
 
 /** Throws unless the user may view (and therefore study) the set. */
@@ -127,5 +130,30 @@ export async function finishStudySession(input: unknown): Promise<ActionResult<n
     });
     if (count === 0) throw new ActionError(ACTION_ERRORS.notFound);
     return null;
+  });
+}
+
+/**
+ * Records one answer: updates the user's CardProgress with the learning rules (server is the
+ * source of truth) and, for Learn, the session's correct/wrong counters.
+ */
+export async function submitAnswer(input: unknown): Promise<ActionResult<CardProgressState>> {
+  return runAction(async () => {
+    const userId = await requireUserId();
+    const { setId, cardId, correct, sessionId } = submitAnswerSchema.parse(input);
+    await assertCanView(setId, userId);
+
+    return db.$transaction(async (tx) => {
+      const card = await tx.card.findFirst({ where: { id: cardId, setId }, select: { id: true } });
+      if (!card) throw new ActionError(ACTION_ERRORS.notFound);
+      const progress = await applyAnswerInDb(tx, userId, cardId, correct, new Date());
+      if (sessionId) {
+        await tx.studySession.updateMany({
+          where: { id: sessionId, userId, setId },
+          data: correct ? { correct: { increment: 1 } } : { wrong: { increment: 1 } },
+        });
+      }
+      return progress;
+    });
   });
 }

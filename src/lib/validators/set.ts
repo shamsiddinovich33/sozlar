@@ -95,3 +95,11 @@ export const finishSessionSchema = z.object({
   correct: z.number().int().min(0).max(100_000),
   wrong: z.number().int().min(0).max(100_000),
 });
+
+export const submitAnswerSchema = z.object({
+  setId: setIdSchema,
+  cardId: cardIdSchema,
+  correct: z.boolean(),
+  /** Learn session to count the answer in (optional; flashcards don't count) */
+  sessionId: cardIdSchema.optional(),
+});
