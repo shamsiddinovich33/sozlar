@@ -14,7 +14,17 @@ export function LearnProgress({ session }: { session: LearnSession }) {
   const done = session.cardIds.filter((id) =>
     isReview ? (session.roundStreak[id] ?? 0) >= 2 : session.progress[id]?.mastery === "MASTERED",
   ).length;
+  // Partial credit so the bar moves with every correct answer, not only when a word is mastered
+  const credit = isReview
+    ? done
+    : session.cardIds.reduce((sum, id) => {
+        const p = session.progress[id];
+        if (!p) return sum;
+        if (p.mastery === "MASTERED") return sum + 1;
+        return sum + Math.min(0.9, (p.box * 2 + Math.min(p.streak, 2)) / 10);
+      }, 0);
   const fraction = total === 0 ? 0 : done / total;
+  const partial = total === 0 ? 0 : Math.max(fraction, credit / total);
   const segments = Math.max(1, Math.min(MAX_SEGMENTS, total));
   const label = isReview ? "takrorlandi" : "o'zlashtirildi";
 
@@ -31,10 +41,15 @@ export function LearnProgress({ session }: { session: LearnSession }) {
       <div className="relative flex flex-1 items-center gap-1.5">
         {Array.from({ length: segments }, (_, i) => {
           const fill = Math.min(1, Math.max(0, fraction * segments - i));
+          const soft = Math.min(1, Math.max(0, partial * segments - i));
           return (
-            <span key={i} className="h-3 flex-1 overflow-hidden rounded-full bg-secondary">
+            <span key={i} className="relative h-3 flex-1 overflow-hidden rounded-full bg-secondary">
               <span
-                className="block h-full rounded-full bg-success transition-[width] duration-500"
+                className="absolute inset-y-0 left-0 rounded-full bg-success/55 transition-[width] duration-500"
+                style={{ width: `${soft * 100}%` }}
+              />
+              <span
+                className="absolute inset-y-0 left-0 rounded-full bg-success transition-[width] duration-500"
                 style={{ width: `${fill * 100}%` }}
               />
             </span>
@@ -44,9 +59,13 @@ export function LearnProgress({ session }: { session: LearnSession }) {
           aria-hidden
           className={cn(
             "absolute top-1/2 grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full text-sm font-bold tabular-nums shadow-md transition-[left] duration-500",
-            done > 0 ? "bg-success text-navy" : "bg-muted text-foreground ring-2 ring-border",
+            done > 0
+              ? "bg-success text-navy"
+              : partial > 0
+                ? "bg-muted text-foreground ring-2 ring-success"
+                : "bg-muted text-foreground ring-2 ring-border",
           )}
-          style={{ left: `clamp(1rem, ${fraction * 100}%, calc(100% - 1rem))` }}
+          style={{ left: `clamp(1rem, ${partial * 100}%, calc(100% - 1rem))` }}
         >
           {done}
         </span>
