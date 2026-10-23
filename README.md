@@ -8,7 +8,8 @@ more often. The interface is in Uzbek; code and comments are in English.
 drag-to-reorder and bulk import (paste or CSV) · public / password-protected / private sets ·
 flashcards with 3D flip, swipe and keyboard shortcuts · adaptive Learn mode (multiple choice and
 typed answers, typo tolerance, check-ins, summary) · profile with stats, weekly chart, streak
-heatmap and hardest words · dark and light themes.
+heatmap and hardest words · study groups with invite links, shared sets and member progress ·
+dark and light themes.
 
 ## Tech stack
 
@@ -110,6 +111,9 @@ session can be resumed at any time.
 
 ## Notes
 
+- Study groups: up to 15 members join through a secret invite link (the owner can renew it).
+  Sets added to a group can be opened by its members even when private or password-protected;
+  each member can add their own sets, the owner can remove any set or member.
 - All write operations are Server Actions that validate input with Zod and check ownership or
   access on the server. Password-protected sets are unlocked with a signed, user-bound cookie.
 - Text-to-speech uses the browser's free Web Speech API; terms are read in English and

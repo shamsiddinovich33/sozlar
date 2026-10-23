@@ -18,4 +18,13 @@ describe("decideSetAccess", () => {
     );
     expect(decideSetAccess({ ownerId: owner, visibility: "PASSWORD" }, "u", true)).toBe("allow");
   });
+
+  it("allows group members to see any set shared with their group", () => {
+    expect(decideSetAccess({ ownerId: owner, visibility: "PRIVATE" }, "u", false, true)).toBe(
+      "allow",
+    );
+    expect(decideSetAccess({ ownerId: owner, visibility: "PASSWORD" }, "u", false, true)).toBe(
+      "allow",
+    );
+  });
 });

@@ -1,7 +1,7 @@
 import type { NextAuthConfig } from "next-auth";
 
 /** Route prefixes that require an authenticated user. */
-const PROTECTED_PREFIXES = ["/dashboard", "/library", "/profile", "/sets"];
+const PROTECTED_PREFIXES = ["/dashboard", "/library", "/profile", "/sets", "/groups"];
 /** Routes a signed-in user should not see (redirected to the dashboard). */
 const GUEST_ONLY_ROUTES = ["/", "/login", "/register"];
 

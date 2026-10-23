@@ -1,9 +1,10 @@
 import "server-only";
 
 import type { Prisma } from "@prisma/client";
-import { Mastery, Visibility } from "@prisma/client";
+import { Mastery } from "@prisma/client";
 
 import { db } from "@/lib/db";
+import { setVisibleTo } from "@/lib/queries/visibility";
 import { masteryPercent } from "@/lib/progress";
 import type { LibrarySearch } from "@/lib/validators/library";
 import type { ContinueSet, SetSummary } from "@/types/sets";
@@ -38,7 +39,7 @@ function toSummary(row: SummaryRow, userId: string, lastStudiedAt?: Date): SetSu
 
 /** Sets the user may currently see: their own, or anyone's non-private set. */
 function visibleTo(userId: string): Prisma.SetWhereInput {
-  return { OR: [{ ownerId: userId }, { visibility: { not: Visibility.PRIVATE } }] };
+  return setVisibleTo(userId);
 }
 
 /** Most recent study time per set for this user, newest first. */

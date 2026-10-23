@@ -1,10 +1,11 @@
 import "server-only";
 
 import type { Prisma } from "@prisma/client";
-import { Mastery, Visibility } from "@prisma/client";
+import { Mastery } from "@prisma/client";
 
 import { addDays, toDayKey } from "@/lib/dates";
 import { db } from "@/lib/db";
+import { setVisibleTo } from "@/lib/queries/visibility";
 import {
   accuracyPercent,
   currentStreak,
@@ -35,9 +36,7 @@ export type ProfileStats = {
 
 /** Progress only counts for cards in sets the user can still see. */
 function visibleCard(userId: string): Prisma.CardWhereInput {
-  return {
-    set: { OR: [{ ownerId: userId }, { visibility: { not: Visibility.PRIVATE } }] },
-  };
+  return { set: setVisibleTo(userId) };
 }
 
 export async function getProfileStats(userId: string, now = new Date()): Promise<ProfileStats> {

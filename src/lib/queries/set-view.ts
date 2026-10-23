@@ -6,6 +6,7 @@ import type { Mastery, Visibility } from "@prisma/client";
 
 import { db } from "@/lib/db";
 import { getAuthSecret } from "@/lib/secret";
+import { isSharedWithUserGroup } from "@/lib/queries/visibility";
 import { decideSetAccess } from "@/lib/set-access";
 import { unlockCookieName, verifyUnlockToken } from "@/lib/unlock-token";
 import type { SetOwner } from "@/types/sets";
@@ -41,12 +42,16 @@ export async function getSetAccess(setId: string, userId: string) {
     select: { id: true, ownerId: true, visibility: true },
   });
   if (!set) return { decision: "not_found" as const, set: null };
+  if (set.ownerId === userId || set.visibility === "PUBLIC") {
+    return { decision: decideSetAccess(set, userId, false), set };
+  }
+  const sharedViaGroup = await isSharedWithUserGroup(setId, userId);
   let unlocked = false;
-  if (set.visibility === "PASSWORD" && set.ownerId !== userId) {
+  if (!sharedViaGroup && set.visibility === "PASSWORD") {
     const token = (await cookies()).get(unlockCookieName(setId))?.value;
     unlocked = verifyUnlockToken(getAuthSecret(), token, setId, userId);
   }
-  return { decision: decideSetAccess(set, userId, unlocked), set };
+  return { decision: decideSetAccess(set, userId, unlocked, sharedViaGroup), set };
 }
 
 /** Loads a set with the viewer's progress and favorites, if the viewer may see it. */

@@ -4,7 +4,15 @@ import { isProtectedPath } from "./auth.config";
 
 describe("isProtectedPath", () => {
   it("protects app routes", () => {
-    for (const p of ["/dashboard", "/library", "/profile", "/sets/new", "/sets/abc/learn"]) {
+    for (const p of [
+      "/dashboard",
+      "/library",
+      "/profile",
+      "/sets/new",
+      "/sets/abc/learn",
+      "/groups",
+      "/groups/join/abc",
+    ]) {
       expect(isProtectedPath(p)).toBe(true);
     }
   });
