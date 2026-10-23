@@ -38,7 +38,9 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
       setCurrent("");
       setNext("");
       setConfirm("");
-      toast.success(hasPassword ? "Parol o'zgartirildi" : "Parol o'rnatildi");
+      toast.success(hasPassword ? "Parol o'zgartirildi" : "Parol o'rnatildi", {
+        description: "Boshqa qurilmalar akkauntdan chiqarildi.",
+      });
     });
   }
 

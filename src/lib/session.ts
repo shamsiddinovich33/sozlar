@@ -16,7 +16,8 @@ export type SessionUser = {
 export async function requireUser(): Promise<SessionUser> {
   const session = await auth();
   const user = session?.user;
-  if (!user?.id) redirect("/login");
+  // /session-ended also clears a stale cookie (e.g. this device was signed out remotely).
+  if (!user?.id) redirect("/session-ended");
   return {
     id: user.id,
     name: user.name ?? null,

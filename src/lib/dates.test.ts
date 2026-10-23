@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getRecencyBucket, groupByRecency } from "./dates";
+import { formatRelativeUz, getRecencyBucket, groupByRecency } from "./dates";
 
 // Wednesday 2026-10-21, 10:00 in Tashkent (UTC+5)
 const now = new Date("2026-10-21T05:00:00Z");
@@ -39,5 +39,21 @@ describe("groupByRecency", () => {
     const groups = groupByRecency(items, (i) => i.at, now);
     expect(groups.map((g) => g.label)).toEqual(["Bugun", "Oldinroq"]);
     expect(groups[0]?.items.map((i) => i.id)).toEqual(["a", "c"]);
+  });
+});
+
+describe("formatRelativeUz", () => {
+  const now = new Date("2026-10-23T12:00:00+05:00");
+  const ago = (ms: number) => new Date(now.getTime() - ms);
+  const MIN = 60_000;
+  it("formats recent times", () => {
+    expect(formatRelativeUz(ago(20_000), now)).toBe("hozirgina");
+    expect(formatRelativeUz(ago(5 * MIN), now)).toBe("5 daqiqa oldin");
+    expect(formatRelativeUz(ago(3 * 60 * MIN), now)).toBe("3 soat oldin");
+  });
+  it("uses calendar days in Tashkent for older times", () => {
+    expect(formatRelativeUz(new Date("2026-10-22T09:00:00+05:00"), now)).toBe("kecha");
+    expect(formatRelativeUz(new Date("2026-10-19T09:00:00+05:00"), now)).toBe("4 kun oldin");
+    expect(formatRelativeUz(new Date("2026-10-01T09:00:00+05:00"), now)).toBe("1-oktabr");
   });
 });

@@ -6,6 +6,12 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { authConfig } from "@/lib/auth.config";
 import { RATE_LIMITED_CODE } from "@/lib/auth-errors";
 import { db } from "@/lib/db";
+import {
+  DEVICE_CHECK_INTERVAL_MS,
+  endDeviceSession,
+  startDeviceSession,
+  touchDeviceSession,
+} from "@/lib/device-sessions";
 import { verifyPassword } from "@/lib/password";
 import { getClientIp, loginLimiter } from "@/lib/rate-limit";
 import { loginSchema } from "@/lib/validators/auth";
@@ -59,6 +65,10 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
     },
   },
   events: {
+    async signOut(message) {
+      const sid = "token" in message ? message.token?.sid : undefined;
+      if (sid) await endDeviceSession(sid);
+    },
     // OAuth users are created by the adapter without a username: assign a unique one.
     async createUser({ user }) {
       if (!user.id || user.username) return;
@@ -68,10 +78,26 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
   },
   callbacks: {
     ...authConfig.callbacks,
+    session(params) {
+      const session = authConfig.callbacks.session(params);
+      if (params.token.sid) session.sessionId = params.token.sid;
+      return session;
+    },
     async jwt({ token, user, trigger }) {
       if (user?.id) {
         token.id = user.id;
         token.username = user.username ?? null;
+        // A new sign-in: register this device so it can be listed and signed out remotely.
+        token.sid = await startDeviceSession(user.id);
+        token.sidCheckedAt = Date.now();
+      } else if (
+        token.id &&
+        token.sid &&
+        Date.now() - (token.sidCheckedAt ?? 0) > DEVICE_CHECK_INTERVAL_MS
+      ) {
+        // The device was signed out from another one (or expired): end this session.
+        if (!(await touchDeviceSession(token.sid, token.id))) return null;
+        token.sidCheckedAt = Date.now();
       }
       // After a profile change (unstable_update), reload the fields shown in the UI.
       if (trigger === "update" && token.id) {

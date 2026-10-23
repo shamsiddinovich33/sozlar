@@ -1,9 +1,10 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 
 import { ACTION_ERRORS, ActionError, requireUserId, runAction } from "@/lib/action";
-import { signOut, unstable_update } from "@/lib/auth";
+import { auth, signOut, unstable_update } from "@/lib/auth";
 import { AUTH_MESSAGES } from "@/lib/auth-errors";
 import {
   avatarUploadParams,
@@ -12,6 +13,7 @@ import {
   signCloudinaryParams,
 } from "@/lib/cloudinary";
 import { db } from "@/lib/db";
+import { endOtherDeviceSessions } from "@/lib/device-sessions";
 import { hashPassword, verifyPassword } from "@/lib/password";
 import { accountLimiter } from "@/lib/rate-limit";
 import { findTakenFields } from "@/lib/users";
@@ -19,6 +21,7 @@ import {
   avatarSchema,
   changePasswordSchema,
   deleteAccountSchema,
+  deviceSessionIdSchema,
   profileSchema,
   type ProfileInput,
 } from "@/lib/validators/profile";
@@ -82,7 +85,46 @@ export async function changePassword(input: unknown): Promise<ActionResult<null>
       where: { id: userId },
       data: { passwordHash: await hashPassword(newPassword) },
     });
+    // Anyone who knew the old password is signed out everywhere except here.
+    await endOtherDeviceSessions(userId, await currentDeviceId());
+    revalidatePath("/profile");
     return null;
+  });
+}
+
+async function currentDeviceId(): Promise<string | undefined> {
+  return (await auth())?.sessionId;
+}
+
+/** Signs out one of the user's other devices. */
+export async function revokeDevice(input: unknown): Promise<ActionResult<null>> {
+  return runAction(async () => {
+    const userId = await requireUserId();
+    const { id } = deviceSessionIdSchema.parse(input);
+    if (id === (await currentDeviceId())) {
+      throw new ActionError(
+        'Bu qurilmadan chiqish uchun menyudagi "Chiqish" tugmasidan foydalaning',
+      );
+    }
+    const { count } = await db.deviceSession.deleteMany({ where: { id, userId } });
+    if (count === 0)
+      throw new ActionError("Qurilma topilmadi — u allaqachon chiqarilgan bo'lishi mumkin");
+    revalidatePath("/profile");
+    return null;
+  });
+}
+
+/** Signs out every device except the current one; returns how many were signed out. */
+export async function revokeOtherDevices(): Promise<ActionResult<number>> {
+  return runAction(async () => {
+    const userId = await requireUserId();
+    const sessionId = await currentDeviceId();
+    // Without a device id (signed in before devices were tracked) we cannot tell which row is
+    // ours, so refuse instead of signing this device out too.
+    if (!sessionId) throw new ActionError("Iltimos, avval chiqib, qaytadan kiring");
+    const count = await endOtherDeviceSessions(userId, sessionId);
+    revalidatePath("/profile");
+    return count;
   });
 }
 

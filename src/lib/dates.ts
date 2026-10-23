@@ -110,3 +110,18 @@ const UZ_MONTHS_SHORT = [
 export function shortMonthUz(dayKey: string): string {
   return UZ_MONTHS_SHORT[Number(dayKey.slice(5, 7)) - 1] ?? "";
 }
+
+/** "hozirgina", "5 daqiqa oldin", "3 soat oldin", "kecha", "4 kun oldin", or a date for older ones. */
+export function formatRelativeUz(date: Date, now: Date = new Date()): string {
+  const minutes = Math.floor((now.getTime() - date.getTime()) / 60_000);
+  if (minutes < 1) return "hozirgina";
+  if (minutes < 60) return `${minutes} daqiqa oldin`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} soat oldin`;
+  const days = Math.round(
+    (Date.parse(toDayKey(now)) - Date.parse(toDayKey(date))) / (24 * 60 * 60 * 1000),
+  );
+  if (days <= 1) return "kecha";
+  if (days < 7) return `${days} kun oldin`;
+  return formatDayUz(toDayKey(date));
+}

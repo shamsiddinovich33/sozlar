@@ -51,6 +51,7 @@ model User {
   ownedGroups   StudyGroup[]
   memberships   GroupMember[]
   groupSets     GroupSet[]
+  devices       DeviceSession[]
 }
 
 // Auth.js standard models
@@ -219,4 +220,18 @@ model GroupSet {
 
   @@id([groupId, setId])
   @@index([setId])
+}
+
+/// One signed-in device (browser). The JWT carries its id; deleting the row signs that device out.
+model DeviceSession {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userAgent  String?
+  city       String?
+  country    String?
+  createdAt  DateTime @default(now())
+  lastSeenAt DateTime @default(now())
+
+  @@index([userId, lastSeenAt])
 }

@@ -8,7 +8,7 @@ more often. The interface is in Uzbek; code and comments are in English.
 drag-to-reorder and bulk import (paste or CSV) · public / password-protected / private sets ·
 flashcards with 3D flip, swipe and keyboard shortcuts · adaptive Learn mode (multiple choice and
 typed answers, typo tolerance, check-ins, summary) · profile with stats, weekly chart, streak
-heatmap and hardest words · study groups with invite links, shared sets and member progress ·
+heatmap and hardest words · signed-in devices with remote sign-out · study groups with invite links, shared sets and member progress ·
 dark and light themes.
 
 ## Tech stack
@@ -76,7 +76,7 @@ Open <http://localhost:3000>. After seeding you can sign in as
 
 ```
 prisma/
-  schema.prisma          users, sets, cards, card progress, study sessions, favorites
+  schema.prisma          users, sets, cards, card progress, study sessions, favorites, groups, devices
   seed.ts                demo user + "Kundalik so'zlar"
 src/
   app/(marketing)/       landing page
@@ -115,6 +115,11 @@ session can be resumed at any time.
 - Study groups: up to 15 members join through a secret invite link (the owner can renew it).
   Sets added to a group can be opened by its members even when private or password-protected;
   each member can add their own sets, the owner can remove any set or member.
+- Signed-in devices: every sign-in creates a `DeviceSession` row whose id is stored in the JWT.
+  The profile lists them (browser, OS, Vercel geo location, last activity) and can sign out one
+  or all other devices; changing the password signs out all other devices. A token re-checks its
+  row at most once a minute, so a removed device is signed out within about a minute. Rows older
+  than 30 days (the session lifetime) are cleaned up on the next sign-in.
 - All write operations are Server Actions that validate input with Zod and check ownership or
   access on the server. Password-protected sets are unlocked with a signed, user-bound cookie.
 - Text-to-speech uses the browser's free Web Speech API; terms are read in English and

@@ -29,3 +29,7 @@ export const avatarSchema = z.object({ url: z.string().max(500) });
 export type ProfileInput = z.infer<typeof profileSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 export type DeleteAccountInput = z.infer<typeof deleteAccountSchema>;
+
+export const deviceSessionIdSchema = z.object({
+  id: z.string().trim().min(1).max(64),
+});
