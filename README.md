@@ -59,17 +59,18 @@ Open <http://localhost:3000>. After seeding you can sign in as
 
 ## Scripts
 
-| Command                     | What it does                                   |
-| --------------------------- | ---------------------------------------------- |
-| `pnpm dev`                  | Development server                             |
-| `pnpm build` / `pnpm start` | Production build / server                      |
-| `pnpm lint`                 | ESLint                                         |
-| `pnpm typecheck`            | `tsc --noEmit`                                 |
-| `pnpm test`                 | Vitest unit tests (`pnpm test:watch` to watch) |
-| `pnpm format`               | Prettier (with Tailwind class sorting)         |
-| `pnpm db:migrate`           | `prisma migrate dev`                           |
-| `pnpm db:seed`              | Demo user and set                              |
-| `pnpm db:studio`            | Prisma Studio                                  |
+| Command                     | What it does                                                           |
+| --------------------------- | ---------------------------------------------------------------------- |
+| `pnpm dev`                  | Development server                                                     |
+| `pnpm build` / `pnpm start` | Production build / server                                              |
+| `pnpm vercel-build`         | Applies pending migrations, then builds (Vercel runs it automatically) |
+| `pnpm lint`                 | ESLint                                                                 |
+| `pnpm typecheck`            | `tsc --noEmit`                                                         |
+| `pnpm test`                 | Vitest unit tests (`pnpm test:watch` to watch)                         |
+| `pnpm format`               | Prettier (with Tailwind class sorting)                                 |
+| `pnpm db:migrate`           | `prisma migrate dev`                                                   |
+| `pnpm db:seed`              | Demo user and set                                                      |
+| `pnpm db:studio`            | Prisma Studio                                                          |
 
 ## Project structure
 
