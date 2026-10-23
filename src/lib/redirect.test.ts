@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { DEFAULT_REDIRECT, safeRedirectPath } from "./redirect";
+import { DEFAULT_REDIRECT, safeRedirectPath, withCallback } from "./redirect";
 
 describe("safeRedirectPath", () => {
   it("keeps internal paths", () => {
@@ -17,5 +17,17 @@ describe("safeRedirectPath", () => {
     expect(safeRedirectPath("//evil.com")).toBe(DEFAULT_REDIRECT);
     expect(safeRedirectPath("/login")).toBe(DEFAULT_REDIRECT);
     expect(safeRedirectPath("/")).toBe(DEFAULT_REDIRECT);
+    expect(safeRedirectPath("/reset-password/abc")).toBe(DEFAULT_REDIRECT);
+    expect(safeRedirectPath("/forgot-password")).toBe(DEFAULT_REDIRECT);
+  });
+});
+
+describe("withCallback", () => {
+  it("carries a safe target and drops unsafe or default ones", () => {
+    expect(withCallback("/register", "/groups/join/abc")).toBe(
+      "/register?callbackUrl=%2Fgroups%2Fjoin%2Fabc",
+    );
+    expect(withCallback("/register", "https://evil.com")).toBe("/register");
+    expect(withCallback("/login", undefined)).toBe("/login");
   });
 });

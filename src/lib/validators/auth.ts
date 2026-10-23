@@ -38,5 +38,13 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Parolni kiriting"),
 });
 
+export const forgotPasswordSchema = z.object({ email });
+
+/** Reset tokens are 32 random bytes in base64url (43 characters). */
+export const resetTokenSchema = z.string().regex(/^[A-Za-z0-9_-]{43}$/);
+
+export const resetPasswordSchema = z.object({ token: resetTokenSchema, password });
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;

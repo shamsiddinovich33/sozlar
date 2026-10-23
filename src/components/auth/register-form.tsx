@@ -21,7 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { registerSchema, type RegisterInput } from "@/lib/validators/auth";
 
-export function RegisterForm() {
+export function RegisterForm({ callbackUrl }: { callbackUrl?: string }) {
   const [formError, setFormError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -33,7 +33,7 @@ export function RegisterForm() {
   function onSubmit(values: RegisterInput) {
     setFormError(null);
     startTransition(async () => {
-      const result = await registerAction(values);
+      const result = await registerAction(values, callbackUrl);
       if (!result || result.ok) return;
       setFormError(result.formError ?? null);
       const fieldErrors = Object.entries(result.fieldErrors ?? {}) as [

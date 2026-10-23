@@ -77,3 +77,9 @@ export const setUnlockLimiter = createLimiter(10, 600, "set-unlock");
 
 /** 5 password changes / account deletions per 10 minutes per user. */
 export const accountLimiter = createLimiter(5, 600, "account");
+
+/** Password reset requests: 5 per 15 minutes per IP and 3 per hour per email address. */
+export const resetRequestLimiter = createLimiter(5, 900, "reset-request");
+export const resetEmailLimiter = createLimiter(3, 3600, "reset-email");
+/** Attempts to use a reset link: 10 per 15 minutes per IP. */
+export const resetSubmitLimiter = createLimiter(10, 900, "reset-submit");

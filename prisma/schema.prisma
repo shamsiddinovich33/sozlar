@@ -52,6 +52,7 @@ model User {
   memberships   GroupMember[]
   groupSets     GroupSet[]
   devices       DeviceSession[]
+  resetTokens   PasswordResetToken[]
 }
 
 // Auth.js standard models
@@ -234,4 +235,17 @@ model DeviceSession {
   lastSeenAt DateTime @default(now())
 
   @@index([userId, lastSeenAt])
+}
+
+/// One-time password reset link. Only a SHA-256 hash of the emailed token is stored.
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
 }

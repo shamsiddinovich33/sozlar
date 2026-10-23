@@ -8,7 +8,7 @@ more often. The interface is in Uzbek; code and comments are in English.
 drag-to-reorder and bulk import (paste or CSV) · public / password-protected / private sets ·
 flashcards with 3D flip, swipe and keyboard shortcuts · adaptive Learn mode (multiple choice and
 typed answers, typo tolerance, check-ins, summary) · profile with stats, weekly chart, streak
-heatmap and hardest words · signed-in devices with remote sign-out · study groups with invite links, shared sets and member progress ·
+heatmap and hardest words · signed-in devices with remote sign-out · password reset by email · study groups with invite links, shared sets and member progress ·
 dark and light themes.
 
 ## Tech stack
@@ -46,16 +46,17 @@ Open <http://localhost:3000>. After seeding you can sign in as
 
 ### Environment variables
 
-| Variable                                                               | Required | Purpose                                                                                                                                 |
-| ---------------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`                                                         | yes      | PostgreSQL connection used by the app (the pooled URL on Neon/Supabase)                                                                 |
-| `DIRECT_URL`                                                           | yes      | Direct, non-pooled connection used by migrations (same as `DATABASE_URL` locally)                                                       |
-| `AUTH_SECRET`                                                          | yes      | Signs sessions and set-unlock cookies. Generate with `openssl rand -base64 32`                                                          |
-| `AUTH_URL`                                                             | prod     | Public base URL, e.g. `https://sozlik.example.com`                                                                                      |
-| `NEXT_PUBLIC_APP_URL`                                                  | prod     | Same URL, used for SEO / OpenGraph links                                                                                                |
-| `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`                                 | optional | Google sign-in. Redirect URI: `<AUTH_URL>/api/auth/callback/google`                                                                     |
-| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`                   | optional | Rate limiting across server instances. Without them an in-memory limiter is used (fine for development and single-instance deployments) |
-| `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | optional | Avatar uploads (signed, direct from the browser). Without them the upload button is hidden                                              |
+| Variable                                                               | Required | Purpose                                                                                                                                                                                                                                                                                                          |
+| ---------------------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`                                                         | yes      | PostgreSQL connection used by the app (the pooled URL on Neon/Supabase)                                                                                                                                                                                                                                          |
+| `DIRECT_URL`                                                           | yes      | Direct, non-pooled connection used by migrations (same as `DATABASE_URL` locally)                                                                                                                                                                                                                                |
+| `AUTH_SECRET`                                                          | yes      | Signs sessions and set-unlock cookies. Generate with `openssl rand -base64 32`                                                                                                                                                                                                                                   |
+| `AUTH_URL`                                                             | prod     | Public base URL, e.g. `https://sozlik.example.com`                                                                                                                                                                                                                                                               |
+| `NEXT_PUBLIC_APP_URL`                                                  | prod     | Same URL, used for SEO / OpenGraph links                                                                                                                                                                                                                                                                         |
+| `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`                                 | optional | Google sign-in. Redirect URI: `<AUTH_URL>/api/auth/callback/google`                                                                                                                                                                                                                                              |
+| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`                   | optional | Rate limiting across server instances. Without them an in-memory limiter is used (fine for development and single-instance deployments)                                                                                                                                                                          |
+| `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | optional | Avatar uploads (signed, direct from the browser). Without them the upload button is hidden                                                                                                                                                                                                                       |
+| `RESEND_API_KEY`, `EMAIL_FROM`                                         | optional | Password reset emails via [Resend](https://resend.com). Without a key the "Parolni unutdingizmi?" link is hidden in production; in development the link is printed to the server log. `EMAIL_FROM` defaults to `So'zlik <onboarding@resend.dev>` (Resend's test sender, which only delivers to your own address) |
 
 ## Scripts
 
@@ -120,6 +121,10 @@ session can be resumed at any time.
   or all other devices; changing the password signs out all other devices. A token re-checks its
   row at most once a minute, so a removed device is signed out within about a minute. Rows older
   than 30 days (the session lifetime) are cleaned up on the next sign-in.
+- Password reset: a one-time link (32 random bytes, only its SHA-256 hash is stored) valid for
+  one hour; requesting a new one invalidates the old one. The form answers the same way for
+  unknown emails, requests are rate limited per IP and per address, and a successful reset signs
+  the account out on every device.
 - All write operations are Server Actions that validate input with Zod and check ownership or
   access on the server. Password-protected sets are unlocked with a signed, user-bound cookie.
 - Text-to-speech uses the browser's free Web Speech API; terms are read in English and
