@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useMutation } from "@tanstack/react-query";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowLeft, CheckCircle2, Settings2, XCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Flag, Settings2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -43,6 +43,8 @@ const AUTO_ADVANCE_MS = 1000;
 type LearnPlayerProps = {
   setId: string;
   title: string;
+  /** The set owner gets a 🚩 button that opens this card in the editor */
+  isOwner: boolean;
   cards: LearnCard[];
   saved: CardProgressState[];
 };
@@ -54,7 +56,7 @@ function isTypingTarget(target: EventTarget | null): boolean {
   );
 }
 
-export function LearnPlayer({ setId, title, cards, saved }: LearnPlayerProps) {
+export function LearnPlayer({ setId, title, isOwner, cards, saved }: LearnPlayerProps) {
   const store = useLearnStore();
   const { session, question, phase, feedback, pendingTyped, promptSide } = store;
   const { supported: canSpeak, speak } = useSpeech();
@@ -137,7 +139,9 @@ export function LearnPlayer({ setId, title, cards, saved }: LearnPlayerProps) {
   // Correct answers move on automatically after a moment.
   useEffect(() => {
     if (phase !== "feedback" || !feedback?.correct) return;
-    const timer = setTimeout(() => useLearnStore.getState().next(), AUTO_ADVANCE_MS);
+    // Give a moment longer to read the note after a hinted answer.
+    const delay = feedback.hinted ? AUTO_ADVANCE_MS * 2.5 : AUTO_ADVANCE_MS;
+    const timer = setTimeout(() => useLearnStore.getState().next(), delay);
     return () => clearTimeout(timer);
   }, [phase, feedback]);
 
@@ -320,17 +324,29 @@ export function LearnPlayer({ setId, title, cards, saved }: LearnPlayerProps) {
           transition={{ duration: 0.2, ease: "easeOut" }}
           className="grid gap-5 rounded-2xl bg-card p-5 shadow-sm sm:p-8"
         >
-          <div className="flex items-start justify-between gap-3">
-            <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-              {promptLabel}
+          <div className="flex items-center justify-between gap-3">
+            <span className="flex items-center gap-1">
+              <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                {promptLabel}
+              </span>
+              {canSpeak && (
+                <SpeakButton
+                  label="Savolni eshitish"
+                  onClick={() =>
+                    speak(question.prompt, question.promptSide === "definition" ? "uz" : "en")
+                  }
+                />
+              )}
             </span>
-            {canSpeak && (
-              <SpeakButton
-                label="Savolni eshitish"
-                onClick={() =>
-                  speak(question.prompt, question.promptSide === "definition" ? "uz" : "en")
-                }
-              />
+            {isOwner && (
+              <Link
+                href={`/sets/${setId}/edit#card-${question.cardId}`}
+                aria-label="Kartani tahrirlash (xato topsangiz)"
+                title="Kartani tahrirlash"
+                className="grid size-10 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/60 focus-visible:outline-none"
+              >
+                <Flag className="size-4" aria-hidden />
+              </Link>
             )}
           </div>
           <p className="text-2xl font-semibold break-words whitespace-pre-wrap sm:text-3xl">
@@ -353,7 +369,11 @@ export function LearnPlayer({ setId, title, cards, saved }: LearnPlayerProps) {
           ) : phase === "question" ? (
             <TypedAnswer
               key={`${question.cardId}-${session.questionNumber}`}
+              answer={question.answer}
+              hintLevel={store.hintLevel}
+              onHint={() => store.showHint()}
               onSubmit={(text) => persist(store.answerTyped(text))}
+              onDontKnow={() => persist(store.dontKnow())}
             />
           ) : null}
 
@@ -384,7 +404,8 @@ export function LearnPlayer({ setId, title, cards, saved }: LearnPlayerProps) {
             </div>
           )}
 
-          {(phase === "question" || phase === "almost") && (
+          {(phase === "almost" ||
+            (phase === "question" && question.type === "multiple_choice")) && (
             <div className="flex justify-end">
               <Button variant="ghost" onClick={() => persist(store.dontKnow())}>
                 Bilmayman?
@@ -420,6 +441,11 @@ export function LearnPlayer({ setId, title, cards, saved }: LearnPlayerProps) {
                   )}
                   {feedback.correct ? correctMessage : WRONG_MESSAGE}
                 </p>
+                {feedback.correct && feedback.hinted && (
+                  <p className="text-sm text-muted-foreground">
+                    Ko&apos;rsatma bilan topdingiz — bu so&apos;z tez orada yana so&apos;raladi.
+                  </p>
+                )}
                 {!feedback.correct &&
                   (feedback.typed !== null || feedback.dontKnow || question.type === "typed") && (
                     <dl className="grid gap-1 text-sm">

@@ -146,13 +146,18 @@ function requeueSlot(session: LearnSession, rng: Rng): number {
   return session.questionNumber + REQUEUE_MIN;
 }
 
-/** Records an answer: updates progress, stats, recent history, re-queue and batches. */
+/**
+ * Records an answer: updates progress, stats, recent history, re-queue and batches.
+ * With `requeue`, a correct answer (e.g. one given with a hint) is also asked again 3–5
+ * questions later, like a wrong one.
+ */
 export function recordAnswer(
   session: LearnSession,
   cardId: string,
   isCorrect: boolean,
   now: Date,
   rng: Rng = Math.random,
+  options: { requeue?: boolean } = {},
 ): LearnSession {
   const current = session.progress[cardId];
   if (!current) return session;
@@ -173,9 +178,10 @@ export function recordAnswer(
       [cardId]: isCorrect ? (session.roundStreak[cardId] ?? 0) + 1 : 0,
     },
   };
-  const withRequeue = isCorrect
-    ? base
-    : { ...base, requeue: [...base.requeue, { cardId, dueAt: requeueSlot(base, rng) }] };
+  const withRequeue =
+    isCorrect && !options.requeue
+      ? base
+      : { ...base, requeue: [...base.requeue, { cardId, dueAt: requeueSlot(base, rng) }] };
   return maybeIntroduceBatch(withRequeue);
 }
 

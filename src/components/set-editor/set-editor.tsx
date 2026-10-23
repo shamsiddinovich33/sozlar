@@ -181,6 +181,15 @@ export function SetEditor({ initial }: { initial: SetEditorInitial }) {
     return () => window.removeEventListener("beforeunload", onBeforeUnload);
   }, [hasPendingChanges]);
 
+  // Opened from Learn's 🚩 button (#card-<id>): scroll to that card and focus its term.
+  useEffect(() => {
+    const id = window.location.hash.match(/^#card-(.+)$/)?.[1];
+    if (!id) return;
+    const row = document.getElementById(`card-${id}`);
+    row?.scrollIntoView({ block: "center" });
+    row?.querySelector<HTMLTextAreaElement>('[data-field="term"]')?.focus({ preventScroll: true });
+  }, []);
+
   // Focus the term field of a newly added card.
   useEffect(() => {
     const id = focusCardIdRef.current;

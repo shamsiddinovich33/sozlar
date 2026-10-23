@@ -87,3 +87,30 @@ export function buildChoices(
   options.splice(correctIndex, 0, correct);
   return { options, correctIndex };
 }
+
+const isLetter = (ch: string) => /[\p{L}\p{N}]/u.test(ch);
+
+/** Number of letters/digits in an answer (spaces and punctuation don't count). */
+function letterCount(answer: string): number {
+  return [...answer.trim()].filter(isLetter).length;
+}
+
+/** How many hint steps an answer allows: every letter but the last can be revealed. */
+export function maxHintLevel(answer: string): number {
+  return Math.max(0, letterCount(answer) - 1);
+}
+
+/**
+ * Hint for a typed answer: the first `level` letters are shown, the rest become "_".
+ * Spaces and punctuation are always shown, so the word lengths and shape are visible.
+ * Returns one entry per character, ready to render with spacing.
+ */
+export function hintMask(answer: string, level: number): string[] {
+  const reveal = Math.min(Math.max(0, level), maxHintLevel(answer));
+  let shown = 0;
+  return [...answer.trim()].map((ch) => {
+    if (!isLetter(ch)) return ch;
+    shown += 1;
+    return shown <= reveal ? ch : "_";
+  });
+}

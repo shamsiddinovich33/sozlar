@@ -51,6 +51,7 @@ export default async function LearnPage({ params }: PageProps) {
         key={set.id}
         setId={set.id}
         title={set.title}
+        isOwner={set.isOwner}
         cards={set.cards.map(({ id, term, definition }) => ({ id, term, definition }))}
         saved={saved}
       />

@@ -37,9 +37,10 @@ function CardRowInner({ card, index, isDuplicate, onChange, onDelete }: CardRowP
   return (
     <li
       ref={setNodeRef}
+      id={`card-${card.id}`}
       style={{ transform: CSS.Translate.toString(transform), transition }}
       className={cn(
-        "group/row relative rounded-xl bg-card shadow-sm",
+        "group/row relative scroll-mt-24 rounded-xl bg-card shadow-sm target:ring-2 target:ring-brand",
         isDragging && "z-10 shadow-xl ring-2 ring-brand",
       )}
     >

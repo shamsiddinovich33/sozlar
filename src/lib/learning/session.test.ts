@@ -179,3 +179,21 @@ describe("summary helpers", () => {
     expect(s).toMatchObject({ correct: 1, wrong: 3, questionNumber: 4 });
   });
 });
+
+describe("hinted answers", () => {
+  it("count as correct but come back 3–5 questions later", () => {
+    const now = new Date(start);
+    let s = createSession(ids(10), []);
+    s = recordAnswer(s, "c1", true, now, () => 0, { requeue: true });
+    expect(s.correct).toBe(1);
+    expect(s.progress.c1?.correctCount).toBe(1);
+    const entry = s.requeue.find((r) => r.cardId === "c1");
+    const gap = (entry?.dueAt ?? 0) - s.questionNumber; // comes back 3–5 questions later
+    expect(gap).toBeGreaterThanOrEqual(REQUEUE_MIN);
+    expect(gap).toBeLessThanOrEqual(REQUEUE_MAX);
+    // Plain correct answers are not re-queued.
+    expect(recordAnswer(s, "c2", true, now, () => 0).requeue.some((r) => r.cardId === "c2")).toBe(
+      false,
+    );
+  });
+});

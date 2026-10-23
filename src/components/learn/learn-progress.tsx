@@ -1,50 +1,63 @@
 import type { LearnSession } from "@/lib/learning";
+import { cn } from "@/lib/utils";
 
-/** Segmented bar: mastered (green), familiar (blue), learning (orange) out of all cards in scope. */
+const MAX_SEGMENTS = 6;
+
+/**
+ * Quizlet-style progress: the track is split into segments that fill with green as words are
+ * mastered (or finished in a review round); a bubble shows the current count, the circle at
+ * the end the total.
+ */
 export function LearnProgress({ session }: { session: LearnSession }) {
   const total = session.cardIds.length;
-  const count = (predicate: (id: string) => boolean) => session.cardIds.filter(predicate).length;
   const isReview = session.goal === "review";
-  const mastered = isReview
-    ? count((id) => (session.roundStreak[id] ?? 0) >= 2)
-    : count((id) => session.progress[id]?.mastery === "MASTERED");
-  const familiar = isReview ? 0 : count((id) => session.progress[id]?.mastery === "FAMILIAR");
-  const learning = isReview
-    ? count((id) => (session.roundStreak[id] ?? 0) === 1)
-    : count((id) => session.progress[id]?.mastery === "LEARNING");
-  const pct = (n: number) => `${total === 0 ? 0 : (n / total) * 100}%`;
+  const done = session.cardIds.filter((id) =>
+    isReview ? (session.roundStreak[id] ?? 0) >= 2 : session.progress[id]?.mastery === "MASTERED",
+  ).length;
+  const fraction = total === 0 ? 0 : done / total;
+  const segments = Math.max(1, Math.min(MAX_SEGMENTS, total));
+  const label = isReview ? "takrorlandi" : "o'zlashtirildi";
 
   return (
-    <div className="grid gap-1.5">
-      <div
-        role="progressbar"
-        aria-label="O'zlashtirilgan so'zlar"
-        aria-valuemin={0}
-        aria-valuemax={total}
-        aria-valuenow={mastered}
-        aria-valuetext={`${total} tadan ${mastered} tasi ${isReview ? "takrorlandi" : "o'zlashtirildi"}`}
-        className="flex h-3 w-full overflow-hidden rounded-full bg-secondary"
-      >
+    <div
+      role="progressbar"
+      aria-label={isReview ? "Takrorlangan so'zlar" : "O'zlashtirilgan so'zlar"}
+      aria-valuemin={0}
+      aria-valuemax={total}
+      aria-valuenow={done}
+      aria-valuetext={`${total} tadan ${done} tasi ${label}`}
+      className="flex items-center gap-3"
+    >
+      <div className="relative flex flex-1 items-center gap-1.5">
+        {Array.from({ length: segments }, (_, i) => {
+          const fill = Math.min(1, Math.max(0, fraction * segments - i));
+          return (
+            <span key={i} className="h-3 flex-1 overflow-hidden rounded-full bg-secondary">
+              <span
+                className="block h-full rounded-full bg-success transition-[width] duration-500"
+                style={{ width: `${fill * 100}%` }}
+              />
+            </span>
+          );
+        })}
         <span
-          className="h-full bg-success transition-[width] duration-500"
-          style={{ width: pct(mastered) }}
-        />
-        <span
-          className="h-full bg-brand transition-[width] duration-500"
-          style={{ width: pct(familiar) }}
-        />
-        <span
-          className="h-full bg-error/80 transition-[width] duration-500"
-          style={{ width: pct(learning) }}
-        />
-      </div>
-      <div className="flex justify-between text-xs text-muted-foreground tabular-nums">
-        <span>0</span>
-        <span className="font-semibold text-foreground">
-          {mastered} / {total} {isReview ? "takrorlandi" : "o'zlashtirildi"}
+          aria-hidden
+          className={cn(
+            "absolute top-1/2 grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full text-sm font-bold tabular-nums shadow-md transition-[left] duration-500",
+            done > 0 ? "bg-success text-navy" : "bg-muted text-foreground ring-2 ring-border",
+          )}
+          style={{ left: `clamp(1rem, ${fraction * 100}%, calc(100% - 1rem))` }}
+        >
+          {done}
         </span>
-        <span>{total}</span>
       </div>
+      <span
+        aria-hidden
+        className="grid size-9 shrink-0 place-items-center rounded-full bg-muted text-sm font-bold text-foreground tabular-nums ring-2 ring-border"
+        title={`Jami ${total} ta so'z`}
+      >
+        {total}
+      </span>
     </div>
   );
 }

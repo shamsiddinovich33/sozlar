@@ -89,3 +89,21 @@ describe("buildChoices", () => {
     expect(options.map((o) => o.text).sort()).toEqual(["apple", "pear"]);
   });
 });
+
+describe("hints", async () => {
+  const { hintMask, maxHintLevel } = await import("./answers");
+
+  it("shows the first letters and keeps spaces and punctuation", () => {
+    expect(hintMask("achieve", 1).join("")).toBe("a______");
+    expect(hintMask("achieve", 3).join("")).toBe("ach____");
+    expect(hintMask("look up", 2).join("")).toBe("lo__ __");
+    expect(hintMask("o'qimoq", 2).join("")).toBe("o'q____");
+  });
+
+  it("never reveals the last letter", () => {
+    expect(maxHintLevel("achieve")).toBe(6);
+    expect(hintMask("achieve", 99).join("")).toBe("achiev_");
+    expect(maxHintLevel("a")).toBe(0);
+    expect(hintMask("a", 1).join("")).toBe("_");
+  });
+});

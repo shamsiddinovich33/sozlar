@@ -8,6 +8,7 @@ import {
   checkTypedAnswer,
   createSession,
   isSessionComplete,
+  maxHintLevel,
   nextCardId,
   questionTypeFor,
   recordAnswer,
@@ -39,6 +40,8 @@ export type Feedback = {
   chosenIndex: number | null;
   typed: string | null;
   dontKnow: boolean;
+  /** A hint was used before answering */
+  hinted: boolean;
 };
 
 export type Phase = "question" | "almost" | "feedback" | "checkin" | "done";
@@ -53,6 +56,8 @@ type LearnState = {
   phase: Phase;
   feedback: Feedback | null;
   pendingTyped: string | null;
+  /** Letters revealed by "Ko'rsatma" for the current typed question */
+  hintLevel: number;
   promptSide: PromptSide;
   startedAt: number;
   finishedAt: number | null;
@@ -67,6 +72,7 @@ type LearnState = {
   answerTyped: (text: string) => AnswerEvent | null;
   confirmAlmost: (accept: boolean) => AnswerEvent | null;
   dontKnow: () => AnswerEvent | null;
+  showHint: () => void;
   next: () => void;
   resumeAfterCheckin: () => void;
   setPromptSide: (side: PromptSide) => void;
@@ -114,13 +120,20 @@ function nextQuestion(
 
 export const useLearnStore = create<LearnState>()((set, get) => {
   /** Records the final answer for the current question and shows feedback. */
-  function finalize(correct: boolean, feedback: Omit<Feedback, "correct">): AnswerEvent | null {
-    const { session, question } = get();
+  function finalize(
+    correct: boolean,
+    feedback: Omit<Feedback, "correct" | "hinted">,
+  ): AnswerEvent | null {
+    const { session, question, hintLevel } = get();
     if (!session || !question) return null;
+    const hinted = hintLevel > 0;
     set({
-      session: recordAnswer(session, question.cardId, correct, new Date()),
+      // A correct answer given with a hint still counts, but the word comes back soon.
+      session: recordAnswer(session, question.cardId, correct, new Date(), Math.random, {
+        requeue: hinted,
+      }),
       phase: "feedback",
-      feedback: { correct, ...feedback },
+      feedback: { correct, hinted, ...feedback },
       pendingTyped: null,
     });
     return { cardId: question.cardId, correct };
@@ -133,6 +146,7 @@ export const useLearnStore = create<LearnState>()((set, get) => {
     phase: "question",
     feedback: null,
     pendingTyped: null,
+    hintLevel: 0,
     promptSide: "definition",
     startedAt: 0,
     finishedAt: null,
@@ -151,6 +165,7 @@ export const useLearnStore = create<LearnState>()((set, get) => {
         phase: done ? "done" : "question",
         feedback: null,
         pendingTyped: null,
+        hintLevel: 0,
         startedAt: Date.now(),
         finishedAt: done ? Date.now() : null,
       });
@@ -184,6 +199,12 @@ export const useLearnStore = create<LearnState>()((set, get) => {
       return finalize(accept, { chosenIndex: null, typed: pendingTyped, dontKnow: false });
     },
 
+    showHint: () => {
+      const { phase, question, hintLevel } = get();
+      if (phase !== "question" || question?.type !== "typed") return;
+      set({ hintLevel: Math.min(hintLevel + 1, maxHintLevel(question.answer)) });
+    },
+
     dontKnow: () => {
       const { phase } = get();
       if (phase !== "question" && phase !== "almost") return null;
@@ -201,13 +222,13 @@ export const useLearnStore = create<LearnState>()((set, get) => {
         set({ phase: "checkin", feedback: null });
         return;
       }
-      set({ phase: "question", feedback: null, question: nextQuestion(state) });
+      set({ phase: "question", feedback: null, hintLevel: 0, question: nextQuestion(state) });
     },
 
     resumeAfterCheckin: () => {
       const state = get();
       if (state.phase !== "checkin") return;
-      set({ phase: "question", question: nextQuestion(state) });
+      set({ phase: "question", hintLevel: 0, question: nextQuestion(state) });
     },
 
     setPromptSide: (promptSide) => {
@@ -216,6 +237,7 @@ export const useLearnStore = create<LearnState>()((set, get) => {
       // Rebuild an unanswered question so it uses the new direction.
       if (state.phase === "question" && state.session && state.question) {
         set({
+          hintLevel: 0,
           question: buildQuestion(state.session, state.cards, promptSide, state.question.cardId),
         });
       }
