@@ -10,9 +10,10 @@ export type CloudinaryConfig = { cloudName: string; apiKey: string; apiSecret: s
 export function getCloudinaryConfig(
   env: Record<string, string | undefined> = process.env,
 ): CloudinaryConfig | null {
-  const cloudName = env.CLOUDINARY_CLOUD_NAME;
-  const apiKey = env.CLOUDINARY_API_KEY;
-  const apiSecret = env.CLOUDINARY_API_SECRET;
+  // Values pasted into a dashboard often carry stray spaces or newlines.
+  const cloudName = env.CLOUDINARY_CLOUD_NAME?.trim();
+  const apiKey = env.CLOUDINARY_API_KEY?.trim();
+  const apiSecret = env.CLOUDINARY_API_SECRET?.trim();
   return cloudName && apiKey && apiSecret ? { cloudName, apiKey, apiSecret } : null;
 }
 

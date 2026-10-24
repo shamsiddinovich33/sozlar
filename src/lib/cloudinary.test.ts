@@ -59,3 +59,16 @@ describe("getCloudinaryConfig", () => {
     ).toEqual({ cloudName: "a", apiKey: "b", apiSecret: "c" });
   });
 });
+
+describe("getCloudinaryConfig", () => {
+  it("trims pasted values and requires all three", () => {
+    expect(
+      getCloudinaryConfig({
+        CLOUDINARY_CLOUD_NAME: " mycloud\n",
+        CLOUDINARY_API_KEY: "123 ",
+        CLOUDINARY_API_SECRET: "\tsecret",
+      }),
+    ).toEqual({ cloudName: "mycloud", apiKey: "123", apiSecret: "secret" });
+    expect(getCloudinaryConfig({ CLOUDINARY_CLOUD_NAME: "x", CLOUDINARY_API_KEY: " " })).toBeNull();
+  });
+});

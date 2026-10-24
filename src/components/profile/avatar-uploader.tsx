@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { getAvatarUploadParams, removeAvatar, setAvatar } from "@/app/(app)/profile/actions";
 import { UserAvatar } from "@/components/layout/user-avatar";
 import { Button } from "@/components/ui/button";
+import { cloudinaryErrorMessage } from "@/lib/cloudinary-errors";
 
 const MAX_BYTES = 2 * 1024 * 1024;
 const UPLOAD_FAILED = "Rasm yuklanmadi. Internet aloqasini tekshirib, qayta urinib ko'ring";
@@ -46,12 +47,24 @@ export function AvatarUploader({
       body.append("file", file);
       for (const [key, value] of Object.entries(params.data.fields)) body.append(key, value);
       const response = await fetch(params.data.uploadUrl, { method: "POST", body });
-      const json: unknown = await response.json();
+      const json: unknown = await response.json().catch(() => null);
       const url =
         typeof json === "object" && json !== null && "secure_url" in json
           ? String(json.secure_url)
           : null;
-      if (!response.ok || !url) throw new UploadError(UPLOAD_FAILED);
+      if (!response.ok || !url) {
+        const raw =
+          typeof json === "object" &&
+          json !== null &&
+          "error" in json &&
+          typeof json.error === "object" &&
+          json.error !== null &&
+          "message" in json.error
+            ? String(json.error.message)
+            : `HTTP ${response.status}`;
+        console.error("Cloudinary upload failed:", raw);
+        throw new UploadError(cloudinaryErrorMessage(raw));
+      }
       const saved = await setAvatar({ url });
       if (!saved.ok) throw new UploadError(saved.error);
       toast.success("Rasm yangilandi");
