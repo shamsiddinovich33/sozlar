@@ -9,7 +9,7 @@ import { SiteHeader } from "@/components/landing/site-header";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-  title: { absolute: "So'zlik — xorijiy so'zlarni oson yodlang" },
+  title: { absolute: "Lexa — xorijiy so'zlarni oson yodlang" },
   alternates: { canonical: "/" },
 };
 

@@ -13,21 +13,21 @@ const inter = Inter({
 
 const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 const description =
-  "So'zlik — kartochkalar va aqlli o'rganish rejimi yordamida xorijiy so'zlarni tez va samarali yodlash platformasi.";
+  "Lexa — kartochkalar va aqlli o'rganish rejimi yordamida xorijiy so'zlarni tez va samarali yodlash platformasi.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
-  applicationName: "So'zlik",
+  applicationName: "Lexa",
   title: {
-    default: "So'zlik — so'zlarni oson yodlang",
-    template: "%s | So'zlik",
+    default: "Lexa — so'zlarni oson yodlang",
+    template: "%s | Lexa",
   },
   description,
   openGraph: {
     type: "website",
     locale: "uz_UZ",
-    siteName: "So'zlik",
-    title: "So'zlik — so'zlarni oson yodlang",
+    siteName: "Lexa",
+    title: "Lexa — so'zlarni oson yodlang",
     description,
   },
   twitter: { card: "summary_large_image" },

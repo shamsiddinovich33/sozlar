@@ -1,6 +1,8 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "So'zlik — xorijiy so'zlarni oson yodlang";
+import { LEXA_MARK_PATHS, LEXA_MARK_VIEWBOX } from "@/components/brand/lexa-mark";
+
+export const alt = "Lexa — xorijiy so'zlarni oson yodlang";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -22,20 +24,22 @@ export default function OpengraphImage() {
       <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
         <div
           style={{
-            width: 72,
-            height: 72,
-            borderRadius: 16,
-            background: "#4255FF",
+            width: 80,
+            height: 80,
+            borderRadius: 18,
+            background: "#FFFFFF",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            fontSize: 44,
-            fontWeight: 800,
           }}
         >
-          S
+          <svg width="60" height="60" viewBox={LEXA_MARK_VIEWBOX} fill="#4141D8">
+            {LEXA_MARK_PATHS.map((d) => (
+              <path key={d} d={d} />
+            ))}
+          </svg>
         </div>
-        <div style={{ fontSize: 56, fontWeight: 800 }}>So&apos;zlik</div>
+        <div style={{ fontSize: 60, fontWeight: 800 }}>Lexa</div>
       </div>
       <div style={{ marginTop: 48, fontSize: 72, fontWeight: 800, lineHeight: 1.1 }}>
         So&apos;zlarni tezroq va mustahkam yodlang

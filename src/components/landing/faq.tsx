@@ -7,7 +7,7 @@ import {
 
 const FAQ_ITEMS = [
   {
-    q: "So'zlik bepulmi?",
+    q: "Lexa bepulmi?",
     a: "Ha. Ro'yxatdan o'ting va cheklovsiz to'plamlar yarating, kartochkalar hamda aqlli o'rganish rejimidan foydalaning.",
   },
   {
@@ -24,7 +24,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "Telefonda ishlaydimi?",
-    a: "Ha. So'zlik barcha qurilmalarga moslashgan: telefonda kartochkalarni surib (swipe) o'rganishingiz mumkin.",
+    a: "Ha. Lexa barcha qurilmalarga moslashgan: telefonda kartochkalarni surib (swipe) o'rganishingiz mumkin.",
   },
 ] as const;
 

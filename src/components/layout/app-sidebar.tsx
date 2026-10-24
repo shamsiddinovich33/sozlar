@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
+import { LexaMark } from "@/components/brand/lexa-mark";
 import { Logo } from "@/components/layout/logo";
 import { NAV_ITEMS, isNavActive } from "@/components/layout/nav-items";
 import { SIDEBAR_COOKIE } from "@/components/layout/sidebar-cookie";
@@ -31,10 +32,10 @@ export function AppSidebar({ defaultCollapsed }: { defaultCollapsed: boolean }) 
         {collapsed ? (
           <Link
             href="/dashboard"
-            aria-label="So'zlik — bosh sahifa"
-            className="grid size-8 place-items-center rounded-lg bg-brand font-extrabold text-white"
+            aria-label="Lexa — bosh sahifa"
+            className="grid size-10 place-items-center rounded-lg"
           >
-            S
+            <LexaMark className="size-8 text-logo" />
           </Link>
         ) : (
           <Logo href="/dashboard" />

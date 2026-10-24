@@ -28,7 +28,7 @@ export function SiteFooter() {
         </nav>
       </div>
       <p className="pb-8 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} So&apos;zlik. Barcha huquqlar himoyalangan.
+        © {new Date().getFullYear()} Lexa. Barcha huquqlar himoyalangan.
       </p>
     </footer>
   );

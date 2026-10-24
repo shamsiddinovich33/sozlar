@@ -2,7 +2,7 @@ import "server-only";
 
 export type EmailMessage = { to: string; subject: string; html: string; text: string };
 
-const DEFAULT_FROM = "So'zlik <onboarding@resend.dev>";
+const DEFAULT_FROM = "Lexa <onboarding@resend.dev>";
 
 /** Email is sent through Resend when RESEND_API_KEY is set. */
 export function isEmailConfigured(): boolean {

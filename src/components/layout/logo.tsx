@@ -1,21 +1,20 @@
 import Link from "next/link";
 
+import { LexaMark } from "@/components/brand/lexa-mark";
 import { cn } from "@/lib/utils";
 
 export function Logo({ className, href = "/" }: { className?: string; href?: string }) {
   return (
     <Link
       href={href}
-      className={cn("inline-flex items-center gap-2 rounded-lg text-xl font-extrabold", className)}
+      className={cn(
+        "inline-flex items-center gap-2 rounded-lg text-xl font-extrabold tracking-tight",
+        className,
+      )}
     >
-      <span
-        aria-hidden
-        className="grid size-8 place-items-center rounded-lg bg-brand text-base text-white"
-      >
-        S
-      </span>
+      <LexaMark className="size-8 text-logo" />
       <span>
-        So&apos;zlik<span className="sr-only"> — bosh sahifa</span>
+        Lexa<span className="sr-only"> — bosh sahifa</span>
       </span>
     </Link>
   );
