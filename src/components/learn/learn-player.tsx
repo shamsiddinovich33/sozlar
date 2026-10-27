@@ -29,6 +29,7 @@ import {
   errorRate,
   hardCardIds,
   hardestCardIds,
+  progressPercent,
   sessionPercent,
   type CardProgressState,
   type SessionGoal,
@@ -72,7 +73,11 @@ export function LearnPlayer({ setId, title, isOwner, cards, saved }: LearnPlayer
   const savedMastered = saved.filter((p) => p.mastery === "MASTERED").length;
   const savedAttempted = saved.some((p) => p.correctCount + p.wrongCount > 0);
   const allMasteredOnLoad = cards.length > 0 && savedMastered === cards.length;
-  const savedPercent = Math.round((savedMastered / Math.max(cards.length, 1)) * 100);
+  // Cards never answered count as 0, so divide by the whole set
+  const savedPercent = progressPercent([
+    ...saved,
+    ...Array<undefined>(Math.max(0, cards.length - saved.length)).fill(undefined),
+  ]);
   const savedInProgress = saved.filter(
     (p) => p.mastery !== "MASTERED" && p.correctCount + p.wrongCount > 0,
   ).length;

@@ -1,4 +1,4 @@
-import type { LearnSession } from "@/lib/learning";
+import { cardCredit, type LearnSession } from "@/lib/learning";
 import { cn } from "@/lib/utils";
 
 const MAX_SEGMENTS = 6;
@@ -17,12 +17,7 @@ export function LearnProgress({ session }: { session: LearnSession }) {
   // Partial credit so the bar moves with every correct answer, not only when a word is mastered
   const credit = isReview
     ? done
-    : session.cardIds.reduce((sum, id) => {
-        const p = session.progress[id];
-        if (!p) return sum;
-        if (p.mastery === "MASTERED") return sum + 1;
-        return sum + Math.min(0.9, (p.box * 2 + Math.min(p.streak, 2)) / 10);
-      }, 0);
+    : session.cardIds.reduce((sum, id) => sum + cardCredit(session.progress[id]), 0);
   const fraction = total === 0 ? 0 : done / total;
   const partial = total === 0 ? 0 : Math.max(fraction, credit / total);
   const segments = Math.max(1, Math.min(MAX_SEGMENTS, total));

@@ -185,11 +185,33 @@ export function recordAnswer(
   return maybeIntroduceBatch(withRequeue);
 }
 
-/** Share of in-scope cards that are done (mastered, or finished in a review round), 0–100. */
+/**
+ * How far one card is towards mastery, 0–1. Mastery takes about six correct answers in a row,
+ * so partial credit (by box and streak) lets progress move with every correct answer.
+ */
+export function cardCredit(p: Pick<CardProgressState, "box" | "streak" | "mastery"> | undefined) {
+  if (!p) return 0;
+  if (p.mastery === "MASTERED") return 1;
+  return Math.min(0.9, (p.box * 2 + Math.min(p.streak, 2)) / 10);
+}
+
+/** Progress over a set of cards, 0–100, counting partial credit (see `cardCredit`). */
+export function progressPercent(
+  cards: readonly (Pick<CardProgressState, "box" | "streak" | "mastery"> | undefined)[],
+): number {
+  if (cards.length === 0) return 0;
+  const credit = cards.reduce((sum, p) => sum + cardCredit(p), 0);
+  return Math.round((credit / cards.length) * 100);
+}
+
+/** Session progress, 0–100: partial mastery credit, or cards finished in a review round. */
 export function sessionPercent(session: LearnSession): number {
   if (session.cardIds.length === 0) return 100;
-  const done = session.cardIds.filter((id) => isRoundDone(session, id)).length;
-  return Math.round((done / session.cardIds.length) * 100);
+  if (session.goal === "review") {
+    const done = session.cardIds.filter((id) => isRoundDone(session, id)).length;
+    return Math.round((done / session.cardIds.length) * 100);
+  }
+  return progressPercent(session.cardIds.map((id) => session.progress[id]));
 }
 
 /** Up to `limit` hardest cards: most wrong answers this session, then highest overall error rate. */

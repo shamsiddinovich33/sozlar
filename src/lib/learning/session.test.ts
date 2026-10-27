@@ -5,11 +5,13 @@ import {
   BATCH_SIZE,
   REQUEUE_MAX,
   REQUEUE_MIN,
+  cardCredit,
   createSession,
   hardCardIds,
   hardestCardIds,
   isSessionComplete,
   nextCardId,
+  progressPercent,
   recordAnswer,
   sessionPercent,
   type LearnSession,
@@ -17,6 +19,35 @@ import {
 import { ids, seededRng } from "./test-utils";
 
 const start = new Date("2026-10-22T10:00:00Z").getTime();
+
+describe("progress credit", () => {
+  const now = new Date(start);
+  it("grows with every correct answer before a word is mastered", () => {
+    let p = initialProgress("c1");
+    const credits = [cardCredit(p)];
+    for (let i = 0; i < 5; i++) {
+      p = applyAnswer(p, true, now);
+      credits.push(cardCredit(p));
+    }
+    for (let i = 1; i < credits.length; i++) expect(credits[i]).toBeGreaterThan(credits[i - 1]!);
+    expect(credits.at(-1)).toBe(1);
+    expect(cardCredit(undefined)).toBe(0);
+  });
+
+  it("counts mastered words fully and others partially", () => {
+    const mastered = { box: 4, streak: 3, mastery: "MASTERED" as const };
+    const fresh = { box: 0, streak: 0, mastery: "NEW" as const };
+    expect(progressPercent([mastered, fresh])).toBe(50);
+    expect(progressPercent([mastered, undefined, undefined, undefined])).toBe(25);
+    expect(progressPercent([])).toBe(0);
+  });
+
+  it("is above zero in a mastery session after a few correct answers", () => {
+    let session = createSession(ids(10), [], "mastery");
+    for (const id of ["c1", "c2", "c3"]) session = recordAnswer(session, id, true, now);
+    expect(sessionPercent(session)).toBeGreaterThan(0);
+  });
+});
 
 /** Simulates a learner; returns the sequence of asked card ids and the final session. */
 function simulate(
