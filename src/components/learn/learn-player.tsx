@@ -29,9 +29,11 @@ import {
   errorRate,
   hardCardIds,
   hardestCardIds,
+  isQuestionMode,
   progressPercent,
   sessionPercent,
   type CardProgressState,
+  type QuestionMode,
   type SessionGoal,
 } from "@/lib/learning";
 import { cn } from "@/lib/utils";
@@ -57,9 +59,11 @@ function isTypingTarget(target: EventTarget | null): boolean {
   );
 }
 
+const QUESTION_MODE_KEY = "lexa:learn-question-mode";
+
 export function LearnPlayer({ setId, title, isOwner, cards, saved }: LearnPlayerProps) {
   const store = useLearnStore();
-  const { session, question, phase, feedback, pendingTyped, promptSide } = store;
+  const { session, question, phase, feedback, pendingTyped, promptSide, questionMode } = store;
   const { supported: canSpeak, speak } = useSpeech();
   const reduceMotion = useReducedMotion();
   const [started, setStarted] = useState(false);
@@ -68,6 +72,25 @@ export function LearnPlayer({ setId, title, isOwner, cards, saved }: LearnPlayer
   const sessionIdRef = useRef<string | null>(null);
   const finishedRef = useRef(false);
   const [correctMessage, setCorrectMessage] = useState(CORRECT_MESSAGES[0]!);
+
+  // Restore the remembered question type (a per-browser convenience; storage may be blocked).
+  useEffect(() => {
+    try {
+      const remembered = window.localStorage.getItem(QUESTION_MODE_KEY);
+      if (isQuestionMode(remembered)) useLearnStore.getState().setQuestionMode(remembered);
+    } catch {
+      // Storage unavailable: keep the default.
+    }
+  }, []);
+
+  function changeQuestionMode(mode: QuestionMode) {
+    useLearnStore.getState().setQuestionMode(mode);
+    try {
+      window.localStorage.setItem(QUESTION_MODE_KEY, mode);
+    } catch {
+      // Storage unavailable: the choice lasts for this visit only.
+    }
+  }
 
   const allIds = useMemo(() => cards.map((c) => c.id), [cards]);
   const savedMastered = saved.filter((p) => p.mastery === "MASTERED").length;
@@ -209,6 +232,8 @@ export function LearnPlayer({ setId, title, isOwner, cards, saved }: LearnPlayer
         onOpenChange={setSettingsOpen}
         promptSide={promptSide}
         onPromptSideChange={(side) => useLearnStore.getState().setPromptSide(side)}
+        questionMode={questionMode}
+        onQuestionModeChange={changeQuestionMode}
       />
       <ConfirmDialog
         open={confirmRestart}

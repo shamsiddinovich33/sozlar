@@ -7,8 +7,21 @@ export type TypedResult = "correct" | "almost" | "wrong";
 export const TYPO_MIN_LENGTH = 5;
 export const MAX_OPTIONS = 4;
 
-/** New and learning words get multiple choice; familiar and mastered words must be typed. */
-export function questionTypeFor(mastery: Mastery): QuestionType {
+/** Learner's choice of question types: by progress ("mixed"), choices only, or typing only. */
+export type QuestionMode = "mixed" | "choice" | "typed";
+export const QUESTION_MODES: readonly QuestionMode[] = ["mixed", "choice", "typed"];
+
+export function isQuestionMode(value: unknown): value is QuestionMode {
+  return typeof value === "string" && (QUESTION_MODES as readonly string[]).includes(value);
+}
+
+/**
+ * In "mixed" mode new and learning words get multiple choice and familiar and mastered words
+ * must be typed; the other modes force one type.
+ */
+export function questionTypeFor(mastery: Mastery, mode: QuestionMode = "mixed"): QuestionType {
+  if (mode === "choice") return "multiple_choice";
+  if (mode === "typed") return "typed";
   return mastery === "FAMILIAR" || mastery === "MASTERED" ? "typed" : "multiple_choice";
 }
 

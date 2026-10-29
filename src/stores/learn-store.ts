@@ -15,6 +15,7 @@ import {
   type CardProgressState,
   type Choice,
   type LearnSession,
+  type QuestionMode,
   type QuestionType,
   type SessionGoal,
 } from "@/lib/learning";
@@ -59,6 +60,8 @@ type LearnState = {
   /** Letters revealed by "Ko'rsatma" for the current typed question */
   hintLevel: number;
   promptSide: PromptSide;
+  /** Which question types to ask (chosen in the settings dialog) */
+  questionMode: QuestionMode;
   startedAt: number;
   finishedAt: number | null;
 
@@ -76,22 +79,25 @@ type LearnState = {
   next: () => void;
   resumeAfterCheckin: () => void;
   setPromptSide: (side: PromptSide) => void;
+  setQuestionMode: (mode: QuestionMode) => void;
   syncProgress: (progress: CardProgressState) => void;
 };
 
 let questionSeq = 0;
 
+type QuestionSettings = { promptSide: PromptSide; questionMode: QuestionMode };
+
 function buildQuestion(
   session: LearnSession,
   cards: Record<string, LearnCard>,
-  promptSide: PromptSide,
+  { promptSide, questionMode }: QuestionSettings,
   cardId: string,
 ): Question | null {
   const card = cards[cardId];
   const progress = session.progress[cardId];
   if (!card || !progress) return null;
   const answerSide = promptSide === "definition" ? "term" : "definition";
-  const type = questionTypeFor(progress.mastery);
+  const type = questionTypeFor(progress.mastery, questionMode);
   const pool = Object.values(cards).map((c) => ({ cardId: c.id, text: c[answerSide] }));
   const { options, correctIndex } =
     type === "multiple_choice"
@@ -111,11 +117,11 @@ function buildQuestion(
 }
 
 function nextQuestion(
-  state: Pick<LearnState, "session" | "cards" | "promptSide">,
+  state: Pick<LearnState, "session" | "cards" | "promptSide" | "questionMode">,
 ): Question | null {
   if (!state.session) return null;
   const cardId = nextCardId(state.session, new Date());
-  return cardId ? buildQuestion(state.session, state.cards, state.promptSide, cardId) : null;
+  return cardId ? buildQuestion(state.session, state.cards, state, cardId) : null;
 }
 
 export const useLearnStore = create<LearnState>()((set, get) => {
@@ -139,6 +145,16 @@ export const useLearnStore = create<LearnState>()((set, get) => {
     return { cardId: question.cardId, correct };
   }
 
+  /** Rebuilds an unanswered question so it follows changed settings. */
+  function rebuildCurrentQuestion() {
+    const state = get();
+    if (state.phase !== "question" || !state.session || !state.question) return;
+    set({
+      hintLevel: 0,
+      question: buildQuestion(state.session, state.cards, state, state.question.cardId),
+    });
+  }
+
   return {
     cards: {},
     session: null,
@@ -148,6 +164,7 @@ export const useLearnStore = create<LearnState>()((set, get) => {
     pendingTyped: null,
     hintLevel: 0,
     promptSide: "definition",
+    questionMode: "mixed",
     startedAt: 0,
     finishedAt: null,
 
@@ -157,7 +174,12 @@ export const useLearnStore = create<LearnState>()((set, get) => {
       const done = isSessionComplete(session);
       const question = done
         ? null
-        : nextQuestion({ session, cards: byId, promptSide: get().promptSide });
+        : nextQuestion({
+            session,
+            cards: byId,
+            promptSide: get().promptSide,
+            questionMode: get().questionMode,
+          });
       set({
         cards: byId,
         session,
@@ -232,15 +254,13 @@ export const useLearnStore = create<LearnState>()((set, get) => {
     },
 
     setPromptSide: (promptSide) => {
-      const state = get();
       set({ promptSide });
-      // Rebuild an unanswered question so it uses the new direction.
-      if (state.phase === "question" && state.session && state.question) {
-        set({
-          hintLevel: 0,
-          question: buildQuestion(state.session, state.cards, promptSide, state.question.cardId),
-        });
-      }
+      rebuildCurrentQuestion();
+    },
+
+    setQuestionMode: (questionMode) => {
+      set({ questionMode });
+      rebuildCurrentQuestion();
     },
 
     syncProgress: (progress) => {

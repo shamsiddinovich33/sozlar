@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildChoices,
   checkTypedAnswer,
+  isQuestionMode,
   levenshtein,
   normalizeAnswer,
   questionTypeFor,
@@ -15,6 +16,20 @@ describe("questionTypeFor", () => {
     expect(questionTypeFor("LEARNING")).toBe("multiple_choice");
     expect(questionTypeFor("FAMILIAR")).toBe("typed");
     expect(questionTypeFor("MASTERED")).toBe("typed");
+  });
+
+  it("follows a forced question mode", () => {
+    for (const mastery of ["NEW", "LEARNING", "FAMILIAR", "MASTERED"] as const) {
+      expect(questionTypeFor(mastery, "choice")).toBe("multiple_choice");
+      expect(questionTypeFor(mastery, "typed")).toBe("typed");
+    }
+    expect(questionTypeFor("NEW", "mixed")).toBe("multiple_choice");
+  });
+
+  it("recognises valid modes only", () => {
+    expect(isQuestionMode("typed")).toBe(true);
+    expect(isQuestionMode("written")).toBe(false);
+    expect(isQuestionMode(null)).toBe(false);
   });
 });
 
